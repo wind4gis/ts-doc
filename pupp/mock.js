@@ -1,6 +1,6 @@
 const puppeteer = require("puppeteer");
-const { recognize } = require("../recognize/index")
-
+const Config = require("./config");
+const { account, password } = Config;
 (async () => {
   const browser = await puppeteer.launch({
     // 是否运行浏览器无头模式(boolean)
@@ -8,31 +8,22 @@ const { recognize } = require("../recognize/index")
     // 是否自动打开调试工具(boolean)，若此值为true，headless自动置为fasle
     devtools: true,
     // 设置超时时间(number)，若此值为0，则禁用超时
-    timeout: 20000
+    timeout: 20000,
   });
   const page = await browser.newPage();
-  // await page.setRequestInterception(true);
-  // 订阅 reponse 事件，参数是一个 reponse 实体
-  page.on("response", async function(response) {
-    if (response.url().includes("captcha?t=")) {
-      const svg = await response.text()
-      // const code = recognize(svg)
-      console.log('code');
-    }
-  });
   await page.goto(
-    "http://rap2-dev.weilaijishi.com/repository/editor?id=118&mod=392&itf=2387"
+    "http://peck.weilaijishi.com/#/main/index/5e5c7ec4dd98884b0c9d469c/doc/api/show/5e788a27885aba14e0ce9744"
   );
   await page.waitForNavigation();
-
+  
   //登录
-  await page.type("#username", "用户提供的用户名");
-  await page.type("#password", "用户提供的密码");
+  await page.type("input[formcontrolname=phone]", account);
+  await page.type("input[formcontrolname=passWord]", password);
+  await page.click("button[type=button]")
 
-  await page.click("#btn_login");
-
-  const element = await page
-    .waitForSelector(".InterfaceSummary .title")
-    .then(dom => console.log(dom));
-  console.log(text, "txt");
+  // const element = await page
+  //   .waitForSelector(
+  //     "tr[class*=ant-descriptions-row][class*=ng-star-inserted]:nth-child(6)"
+  //   )
+  //   .then((dom) => console.log(dom, "dom"));
 })();

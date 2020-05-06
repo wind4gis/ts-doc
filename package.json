@@ -5,12 +5,12 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node ./src/main.ts",
-    "t": "ts-node ./src/event.ts"
+    "start": "node ./pupp/mock.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "eslint": "^6.8.0",
     "puppeteer": "^2.0.0"
   },
   "devDependencies": {
