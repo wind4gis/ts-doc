@@ -1,12 +1,16 @@
+#!/usr/bin/env node
 /*
  * @Date: 2020-05-07 11:44:27
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-05-07 15:11:44
+ * @LastEditTime: 2020-05-07 18:35:46
  * @Description:
  */
 const commander = require("commander");
 const chalk = require("chalk");
 const buildApiInfo = require("./grab");
+const fs = require("fs");
+const path = require("path");
+const typeTemplate = require("../template/type");
 
 const cmdList = ["init", "add"];
 const pkg = require("../package.json");
@@ -16,7 +20,6 @@ commander.parse(process.argv);
 
 let errors = [];
 const [cmd, url] = commander.args;
-console.log(commander)
 if (!cmdList.includes(cmd)) {
   errors.push("请输入该工具支持的方法");
 }
@@ -26,14 +29,29 @@ if (!/^https?:\/\//.test(url)) {
 }
 
 if (errors.length) {
-  console.log(chalk.red(errors.join(";\n")));
-  return
+  console.error(chalk.red(errors.join(";\n")));
+  return;
 }
+const curFolder = process.cwd();
 
-const initFn = (commander, url) => {
+const initFn = async (commander, url) => {
+  const fileExists =
+    fs.existsSync(path.resolve(curFolder, "index.ts")) ||
+    fs.existsSync(path.resolve(curFolder, "type.ts"));
+  if (fileExists && !commander.force) {
+    return console.error(chalk.red("已经存在重命名的文件"));
+  }
+  const { apiInfo, requestProps, responseProps } = await buildApiInfo(url);
+  fs.writeFile(
+    path.resolve(curFolder, "type.ts"),
+    typeTemplate({ apiInfo, requestProps, responseProps }),
+    (err) => {
+      err && console.error(chalk.red(err));
+    }
+  );
+};
 
-}
+const cmdCallback = { init: initFn };
+const fn = cmdCallback[cmd] || (() => {})
+fn(commander, url)
 
-commander.command("init <url>").action(async (url, cmd) => {
-  await buildApiInfo(url);
-});

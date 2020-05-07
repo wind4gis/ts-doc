@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-05-06 15:04:38
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-05-07 14:36:59
+ * @LastEditTime: 2020-05-07 20:25:24
  * @Description:
  */
 const puppeteer = require("puppeteer");
@@ -32,6 +32,11 @@ const buildApiInfo = async (url) => {
   console.log(apiInfo, requestProps, responseProps, "xxx");
   await page.close(); // 关闭网页
   await browser.close(); // 关闭浏览器
+  return {
+    apiInfo,
+    requestProps,
+    responseProps
+  }
 };
 
 const login = async ({ page }) => {
@@ -120,6 +125,11 @@ const initRequestParams = async ({ apiInfo, requestProps, page }) => {
 };
 
 const initResponseParams = async ({ responseProps, page }) => {
+  const tbody = await page.$("nz-tabset:nth-child(3) tbody");
+  const count = await page.evaluate((el) => el.childElementCount, tbody);
+  if (!!count) {
+    await buildApiParams({ tbody, apiProps: responseProps });
+  }
   let curIcon = await page.$(
     "nz-tabset:nth-child(3) span[class*=ant-table-row-expand-icon][class*=ant-table-row-collapsed]"
   );
@@ -128,11 +138,6 @@ const initResponseParams = async ({ responseProps, page }) => {
     curIcon = await page.$(
       "nz-tabset:nth-child(3) span[class*=ant-table-row-expand-icon][class*=ant-table-row-collapsed]"
     );
-  }
-  const tbody = await page.$("nz-tabset:nth-child(3) tbody");
-  const count = await page.evaluate((el) => el.childElementCount, tbody);
-  if (!!count) {
-    await buildApiParams({ tbody, apiProps: responseProps });
   }
 };
 
