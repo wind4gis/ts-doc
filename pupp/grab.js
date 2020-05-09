@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-05-06 15:04:38
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-05-07 20:25:24
+ * @LastEditTime: 2020-05-09 09:57:25
  * @Description:
  */
 const puppeteer = require("puppeteer");
@@ -35,8 +35,8 @@ const buildApiInfo = async (url) => {
   return {
     apiInfo,
     requestProps,
-    responseProps
-  }
+    responseProps,
+  };
 };
 
 const login = async ({ page }) => {
@@ -128,16 +128,62 @@ const initResponseParams = async ({ responseProps, page }) => {
   const tbody = await page.$("nz-tabset:nth-child(3) tbody");
   const count = await page.evaluate((el) => el.childElementCount, tbody);
   if (!!count) {
-    await buildApiParams({ tbody, apiProps: responseProps });
-  }
-  let curIcon = await page.$(
-    "nz-tabset:nth-child(3) span[class*=ant-table-row-expand-icon][class*=ant-table-row-collapsed]"
-  );
-  while (curIcon) {
-    await curIcon.click();
-    curIcon = await page.$(
-      "nz-tabset:nth-child(3) span[class*=ant-table-row-expand-icon][class*=ant-table-row-collapsed]"
-    );
+    let queue = [];
+    let curResponse = null;
+    let curParentName = "";
+    const trList = await tbody.$$("tr");
+    const firstChild = { name: "", val: trList, curOffset: 1 };
+    queue.push(firstChild);
+    while (queue.length) {
+      const curItem = queue.pop();
+      curResponse = curItem.val;
+      curParentName = curItem.name;
+      if (curItem.curIcon) {
+        const preCount = await page.evaluate((el) => el.childElementCount, tbody);
+        await curItem.curIcon.click();
+        const curCount = await page.evaluate((el) => el.childElementCount, tbody);
+        curResponse = await tbody.$$(`tr:nth-child(n+${curItem.curOffset}):nth-child(-n+${curItem.curOffset + curCount - preCount - 1})`);
+      }
+      let curInterfaceProp = []
+      for (let curTrIdx = 0; curTrIdx < curResponse.length; curTrIdx++) {
+        const curTr = curResponse[curTrIdx];
+        const tdList = await curTr.$$("td");
+        const fieldMap = [
+          "name",
+          "required",
+          "type",
+          "rule",
+          "defaultValue",
+          "desc",
+        ];
+        let curProp = { parentName: curParentName };
+        for (let curTdIdx = 0; curTdIdx < tdList.length; curTdIdx++) {
+          const curTd = tdList[curTdIdx];
+          const tdTxtItem = await curTd.$("span[class=ng-star-inserted]");
+          const curFieldValue = tdTxtItem
+            ? await tdTxtItem.evaluate((el) => el.innerText)
+            : await curTd.evaluate((el) => el.innerText);
+          if (curTdIdx === 0) {
+            let curIcon = await curTd.$(
+              "span[class*=ant-table-row-expand-icon][class*=ant-table-row-collapsed]"
+            );
+            if (curIcon) {
+              queue.push({
+                val: {},
+                curIcon,
+                curOffset: curTrIdx + curItem.curOffset + 1,
+                name: curFieldValue,
+              });
+              curProp.child = curFieldValue;
+            }
+          }
+          const curFieldName = fieldMap[curTdIdx];
+          curProp[curFieldName] = curFieldValue;
+        }
+        curInterfaceProp.push(curProp)
+      }
+      responseProps.push(curInterfaceProp)
+    }
   }
 };
 

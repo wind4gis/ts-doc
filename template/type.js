@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-05-07 15:35:11
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-05-07 18:52:08
+ * @LastEditTime: 2020-05-09 11:50:16
  * @Description:
  */
 
@@ -14,6 +14,36 @@ const getParamsStr = propsArr => {
   }, "")
 }
 
+const upperFirstCase = name => {
+  if (!name) return ""
+  const [firstChar, ...restChar] = name;
+  return [String.prototype.toUpperCase.call(firstChar), ...restChar].join(
+    ""
+  );
+}
+
+const getCurResType = (urlName, cur) => {
+  if (!cur.child) {
+    return String.prototype.toLowerCase.call(cur.type)
+  }
+  const type = `I${urlName}${upperFirstCase(cur.child)}`
+  if (cur.type === "Array") {
+    return `Array<${type}> []`
+  }
+  return type
+}
+
+const getResponseStr = (urlName, responseProp) => {
+  const N = "\n";
+  const initTxt = `${N}interface I${urlName}${upperFirstCase(responseProp[0].parentName)} {${N}`
+  let result = responseProp.reduce((total, cur) => {
+    total += (`  ${cur.name}${cur.required === "是" ? "" : "?"}: ${getCurResType(urlName, cur)}; // ${cur.desc}${N}`)
+    return total
+  }, initTxt)
+  result += `}`
+  return result
+}
+
 module.exports = ({ apiInfo, requestProps, responseProps }) => {
   const { apiUrl } = apiInfo;
   const urlArray = apiUrl.split("/");
@@ -22,10 +52,7 @@ module.exports = ({ apiInfo, requestProps, responseProps }) => {
   const N = "\n";
   const createDate = date.toLocaleDateString("zh").replace(/\//g, "-");
   const createTime = date.toLocaleTimeString("zh", { hour12: false });
-  const [firstChar, ...restChar] = tmpName;
-  const name = [String.prototype.toUpperCase.call(firstChar), ...restChar].join(
-    ""
-  );
+  const name = upperFirstCase(tmpName)
   
   return `/*${N} * @Date: ${createDate} ${createTime}${
     N} * @LastEditors: Huang canfeng${
@@ -36,8 +63,6 @@ module.exports = ({ apiInfo, requestProps, responseProps }) => {
     N}${getParamsStr(requestProps)}${
     N}}${
     N}${
-    N}interface I${name}ResponseProps {${
-    N}${getParamsStr(responseProps)}${
-    N}}
+    N}${responseProps.map(item => getResponseStr(name, item)).join(N)}
   `;
 };
