@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-05-07 15:35:11
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-05-09 11:50:16
+ * @LastEditTime: 2020-05-09 14:31:56
  * @Description:
  */
 
@@ -35,7 +35,9 @@ const getCurResType = (urlName, cur) => {
 
 const getResponseStr = (urlName, responseProp) => {
   const N = "\n";
-  const initTxt = `${N}interface I${urlName}${upperFirstCase(responseProp[0].parentName)} {${N}`
+  const curResName = `I${urlName}${upperFirstCase(responseProp[0].parentName)}`
+  const initTxt = `${N}interface ${curResName} {${N}`
+  responseProp[0].parentName === "" && requestInfo["response"].push(curResName)
   let result = responseProp.reduce((total, cur) => {
     total += (`  ${cur.name}${cur.required === "是" ? "" : "?"}: ${getCurResType(urlName, cur)}; // ${cur.desc}${N}`)
     return total
@@ -44,7 +46,7 @@ const getResponseStr = (urlName, responseProp) => {
   return result
 }
 
-module.exports = ({ apiInfo, requestProps, responseProps }) => {
+const parse = ({ apiInfo, requestProps, responseProps }) => {
   const { apiUrl } = apiInfo;
   const urlArray = apiUrl.split("/");
   let tmpName = urlArray.length ? urlArray[urlArray.length - 1] : "";
@@ -53,6 +55,8 @@ module.exports = ({ apiInfo, requestProps, responseProps }) => {
   const createDate = date.toLocaleDateString("zh").replace(/\//g, "-");
   const createTime = date.toLocaleTimeString("zh", { hour12: false });
   const name = upperFirstCase(tmpName)
+
+  requestInfo["request"].push(`I${name}RequestProps`)
   
   return `/*${N} * @Date: ${createDate} ${createTime}${
     N} * @LastEditors: Huang canfeng${
@@ -66,3 +70,13 @@ module.exports = ({ apiInfo, requestProps, responseProps }) => {
     N}${responseProps.map(item => getResponseStr(name, item)).join(N)}
   `;
 };
+
+const requestInfo = {
+  request: [],
+  response: []
+}
+
+module.exports = {
+  parse,
+  requestInfo
+}

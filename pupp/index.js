@@ -2,7 +2,7 @@
 /*
  * @Date: 2020-05-07 11:44:27
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-05-07 18:35:46
+ * @LastEditTime: 2020-05-09 14:29:57
  * @Description:
  */
 const commander = require("commander");
@@ -11,6 +11,7 @@ const buildApiInfo = require("./grab");
 const fs = require("fs");
 const path = require("path");
 const typeTemplate = require("../template/type");
+const indexTemplate = require("../template/index");
 
 const cmdList = ["init", "add"];
 const pkg = require("../package.json");
@@ -44,7 +45,14 @@ const initFn = async (commander, url) => {
   const { apiInfo, requestProps, responseProps } = await buildApiInfo(url);
   fs.writeFile(
     path.resolve(curFolder, "type.ts"),
-    typeTemplate({ apiInfo, requestProps, responseProps }),
+    typeTemplate.parse({ apiInfo, requestProps, responseProps }),
+    (err) => {
+      err && console.error(chalk.red(err));
+    }
+  );
+  fs.writeFile(
+    path.resolve(curFolder, "index.ts"),
+    indexTemplate.parse({ apiInfo, requestInfo: typeTemplate.requestInfo }),
     (err) => {
       err && console.error(chalk.red(err));
     }
