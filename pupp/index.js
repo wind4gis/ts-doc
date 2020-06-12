@@ -2,7 +2,7 @@
 /*
  * @Date: 2020-05-07 11:44:27
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-12 19:13:55
+ * @LastEditTime: 2020-06-12 22:53:48
  * @Description:
  */
 const commander = require("commander");
@@ -72,23 +72,9 @@ const addFn = async (commander, url) => {
 	if (!fileExists) {
 		return console.error(chalk.red("不存在对应的文件"));
 	}
-	// const typeTxt = typeTemplate.astAdd(typeFileUrl);
 	await buildApiInfo(url);
-	EventBus.addEventListener("apiInfo", async ({ type }, { apiInfo, requestProps, responseProps }) => {
-		const typeTxt = await typeTemplate.astAdd(typeFileUrl, { apiInfo, requestProps, responseProps });
-		// console.log(typeTxt)
-		// fs.writeFile(path.resolve(curFolder, "type1.ts"), typeTxt, (err) => {
-		// 	if (err) {
-		// 		return console.error(chalk.red(err));
-		// 	}
-		// });
-		// fs.writeFile(
-		// 	path.resolve(curFolder, "index.ts"),
-		// 	indexTemplate.parse({ apiInfo, requestInfo: typeTemplate.requestInfo }),
-		// 	(err) => {
-		// 		err && console.error(chalk.red(err));
-		// 	}
-		// );
+	EventBus.addEventListener("apiInfo", ({ type }, { apiInfo, requestProps, responseProps }) => {
+		typeTemplate.astAdd(typeFileUrl, { apiInfo, requestProps, responseProps });
 	});
 };
 

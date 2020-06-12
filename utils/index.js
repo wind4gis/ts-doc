@@ -1,10 +1,10 @@
 /*
  * @Date: 2020-06-12 14:04:54
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-12 18:18:29
+ * @LastEditTime: 2020-06-12 21:32:08
  * @Description:
  */
-
+const prettier = require("prettier")
 /**
  * @name: 格式化代码
  */
