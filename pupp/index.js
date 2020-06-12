@@ -2,7 +2,7 @@
 /*
  * @Date: 2020-05-07 11:44:27
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-12 14:00:11
+ * @LastEditTime: 2020-06-12 16:18:21
  * @Description:
  */
 const commander = require("commander");
@@ -74,14 +74,13 @@ const addFn = async (commander, url) => {
 	}
 	await buildApiInfo(url);
 	EventBus.addEventListener("apiInfo", async ({ type }, { apiInfo, requestProps, responseProps }) => {
-		const typeFileTxt = await fsPromises.readFile(idxFileUrl, { encoding: "utf-8" });
-		const typeTxt = typeTemplate.astAdd(typeFileTxt, { apiInfo, requestProps, responseProps });
-		console.log(typeTxt)
-		fs.writeFile(path.resolve(curFolder, "type1.ts"), typeTxt, (err) => {
-			if (err) {
-				return console.error(chalk.red(err));
-			}
-		});
+		const typeTxt = await typeTemplate.astAdd(typeFileUrl, { apiInfo, requestProps, responseProps });
+		// console.log(typeTxt)
+		// fs.writeFile(path.resolve(curFolder, "type1.ts"), typeTxt, (err) => {
+		// 	if (err) {
+		// 		return console.error(chalk.red(err));
+		// 	}
+		// });
 		// fs.writeFile(
 		// 	path.resolve(curFolder, "index.ts"),
 		// 	indexTemplate.parse({ apiInfo, requestInfo: typeTemplate.requestInfo }),

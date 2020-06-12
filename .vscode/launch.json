@@ -9,7 +9,7 @@
       "request": "launch",
       "name": "Launch Program",
       "program": "${workspaceFolder}/pupp/index.js",
-      "args": ["add", "http://peck.weilaijishi.com/#/main/index/5e5cd38c5bbabf755f69c133/doc/api/show/5e81a011caa6f900d127d2e4"],
+      "args": ["add", "http://peck.weilaijishi.com/#/main/index/5e5cd38c5bbabf755f69c133/doc/api/show/5e81be7fcaa6f900d127d33a"],
       "skipFiles": ["<node_internals>/**"]
     }
   ]

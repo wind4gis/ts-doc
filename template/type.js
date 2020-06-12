@@ -1,15 +1,18 @@
 /*
  * @Date: 2020-05-07 15:35:11
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-12 14:01:59
+ * @LastEditTime: 2020-06-12 17:30:34
  * @Description:
  */
 const babel = require("@babel/core");
-const template = require("@babel/template")
-const prettier = require("prettier");
-const t = require("@babel/types");
-const generate = require("@babel/generator").default;
-
+const path = require("path")
+const { prettierCode, upperFirstCase, generateTypeFile } = require("../utils");
+const { Project } = require("ts-morph");
+const project = new Project({
+	tsConfigFilePath: "./tsconfig.json",
+	skipFileDependencyResolution: true,
+	addFilesFromTsConfig: false
+});
 const getParamsStr = (propsArr) => {
 	const N = "\n";
 	const len = propsArr.length;
@@ -19,12 +22,6 @@ const getParamsStr = (propsArr) => {
 		}`;
 		return total;
 	}, "");
-};
-
-const upperFirstCase = (name) => {
-	if (!name) return "";
-	const [firstChar, ...restChar] = name;
-	return [String.prototype.toUpperCase.call(firstChar), ...restChar].join("");
 };
 
 const getResponseItemStr = (type, array) => {
@@ -75,16 +72,7 @@ const getResponseStr = (responseProp) => {
 	}
 	return result;
 };
-/**
- * @name: 格式化代码
- */
-const prettierCode = (result) => {
-	return prettier.resolveConfigFile().then((filePath) => {
-		return prettier.resolveConfig(filePath).then((options) => {
-			return prettier.format(result, options);
-		});
-	});
-};
+
 /**
  * @name: 根据url路径名推断接口的名称
  */
@@ -116,36 +104,21 @@ const parse = async ({ apiInfo, requestProps, responseProps }) => {
 	return prettierCode(result);
 };
 
+// const 
+
 /**
  * @name: 接收源文件和通过url读取的接口信息，在源文件的基础上新增对应的接口文档信息
  */
-const astAdd = (code, { apiInfo, requestProps, responseProps }) => {
+const astAdd = async (typeFileUrl, { apiInfo, requestProps, responseProps }) => {
 	const name = getApiName(apiInfo);
 	const N = "\n";
-	const ast = babel.transformSync(code, {
-		sourceType: "module",
-		plugins: [
-			"@babel/plugin-transform-typescript",
-			function astAddPlugin() {
-				return {
-					visitor: {
-						Identifier: {
-							enter(path) {
-								console.log(path.node.name)
-							}
-						},
-						Program(path) {
-							path.addComment('trailing',`---------------------${apiInfo.title}----------------------`)
-							
-						},
-					},
-				};
-			},
-		],
-	});
-	// const output = generate(ast, {}, code);
-	// console.log(output, "output");
-	return ast.code
+	const sourceFile = project.addSourceFilesAtPaths(typeFileUrl)[0];
+	const typeFileTxtArr =	generateTypeFile({ title:apiInfo.title, interfaceName: name, requestInterface: getParamsStr(requestProps), responseInterface: getResponseStr(responseProps)  })
+	typeFileTxtArr.forEach(lineTxt => {
+		sourceFile.addStatements(`${lineTxt == "" ? " ": lineTxt + "\n"}`)
+	})
+	await project.save();
+	return "";
 };
 
 const requestInfo = {
