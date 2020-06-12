@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-06-12 14:04:54
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-12 17:09:17
+ * @LastEditTime: 2020-06-12 18:18:29
  * @Description:
  */
 
@@ -55,6 +55,45 @@ const generateTypeFileReference = ({ responseTypeUrl }) => {
  */
 const generateTypeFile = ({ title, interfaceName, requestInterface, responseInterface }) => {
 	return [
+		{
+			type: "statement",
+			value: `//---------------------${title}----------------------`,
+		},
+		{
+			type: "interface",
+			export: true,
+			name: `I${interfaceName}RequestProps`,
+			methodList: requestInterface,
+		},
+		{
+			type: "interface",
+			export: true,
+			name: `I${interfaceName}Props`,
+			methodList: responseInterface,
+		},
+		{
+			type: "interface",
+			export: true,
+			name: `I${interfaceName}ResponseProps`,
+			methodList: [{ name: "result", returnType: `I${interfaceName}Props` }],
+		},
+	];
+	return {
+		title: `//---------------------${title}----------------------`,
+		interfaceRequestProps: {
+			name: `I${interfaceName}RequestProps`,
+			methodList: requestInterface,
+		},
+		interfaceProps: {
+			name: `I${interfaceName}Props`,
+			methodList: responseInterface,
+		},
+		interfaceResponseProps: {
+			name: `I${interfaceName}ResponseProps`,
+			methodList: [{ name: "result", returnType: `I${interfaceName}Props` }],
+		},
+	};
+	return [
 		``,
 		`//---------------------${title}----------------------`,
 		``,
@@ -75,5 +114,5 @@ const generateTypeFile = ({ title, interfaceName, requestInterface, responseInte
 module.exports = {
 	prettierCode,
 	upperFirstCase,
-	generateTypeFile
+	generateTypeFile,
 };

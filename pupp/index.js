@@ -2,7 +2,7 @@
 /*
  * @Date: 2020-05-07 11:44:27
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-12 16:18:21
+ * @LastEditTime: 2020-06-12 19:13:55
  * @Description:
  */
 const commander = require("commander");
@@ -63,7 +63,7 @@ const initFn = async (commander, url) => {
 
 /**
  * @name: 通过事件监听响应机制，抓取url对应的peck文档上的接口信息，构建apiInfo、requestProps和responseProps信息
- * 
+ *
  */
 const addFn = async (commander, url) => {
 	const idxFileUrl = path.resolve(curFolder, "index.ts");
@@ -72,6 +72,7 @@ const addFn = async (commander, url) => {
 	if (!fileExists) {
 		return console.error(chalk.red("不存在对应的文件"));
 	}
+	// const typeTxt = typeTemplate.astAdd(typeFileUrl);
 	await buildApiInfo(url);
 	EventBus.addEventListener("apiInfo", async ({ type }, { apiInfo, requestProps, responseProps }) => {
 		const typeTxt = await typeTemplate.astAdd(typeFileUrl, { apiInfo, requestProps, responseProps });

@@ -1,17 +1,17 @@
 /*
  * @Date: 2020-05-07 15:35:11
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-12 17:30:34
+ * @LastEditTime: 2020-06-12 19:22:23
  * @Description:
  */
 const babel = require("@babel/core");
-const path = require("path")
+const path = require("path");
 const { prettierCode, upperFirstCase, generateTypeFile } = require("../utils");
 const { Project } = require("ts-morph");
 const project = new Project({
 	tsConfigFilePath: "./tsconfig.json",
 	skipFileDependencyResolution: true,
-	addFilesFromTsConfig: false
+	addFilesFromTsConfig: false,
 });
 const getParamsStr = (propsArr) => {
 	const N = "\n";
@@ -37,6 +37,21 @@ const getResponseItemStr = (type, array) => {
 	result += `${N}}${type === "array" ? [] : ""}`;
 	return result;
 };
+
+const getTsResponse = (responseProp) => {
+	responseProp = responseProp.some((prop) => prop.name === "result")
+		? responseProp
+				.flatMap((prop) => {
+					if (prop.name !== "result") {
+						return null;
+					}
+					return prop.children;
+				})
+				.filter(Boolean)
+		: responseProp;
+	return;
+};
+
 /**
  * @name: 根据response对象生成接口数据
  */
@@ -44,9 +59,6 @@ const getResponseStr = (responseProp) => {
 	const N = "\n";
 	const len = responseProp.length;
 	let result = ``;
-	if (responseProp.some((r) => r.name === "result") && responseProp.length === 1) {
-		// result += `result: {${N}`;
-	}
 	responseProp = responseProp.some((prop) => prop.name === "result")
 		? responseProp
 				.flatMap((prop) => {
@@ -67,9 +79,6 @@ const getResponseStr = (responseProp) => {
 		}
 		return total;
 	}, "");
-	if (responseProp.some((r) => r.name === "result") || responseProp.length === 1) {
-		// result += `${N}}`;
-	}
 	return result;
 };
 
@@ -104,19 +113,71 @@ const parse = async ({ apiInfo, requestProps, responseProps }) => {
 	return prettierCode(result);
 };
 
-// const 
+// const
 
 /**
  * @name: 接收源文件和通过url读取的接口信息，在源文件的基础上新增对应的接口文档信息
  */
-const astAdd = async (typeFileUrl, { apiInfo, requestProps, responseProps }) => {
-	const name = getApiName(apiInfo);
+const astAdd = async (typeFileUrl, { apiInfo, requestProps, responseProps } = {}) => {
+	// const name = getApiName(apiInfo);
 	const N = "\n";
 	const sourceFile = project.addSourceFilesAtPaths(typeFileUrl)[0];
-	const typeFileTxtArr =	generateTypeFile({ title:apiInfo.title, interfaceName: name, requestInterface: getParamsStr(requestProps), responseInterface: getResponseStr(responseProps)  })
-	typeFileTxtArr.forEach(lineTxt => {
-		sourceFile.addStatements(`${lineTxt == "" ? " ": lineTxt + "\n"}`)
-	})
+	apiInfo = {
+		content: "NONE",
+		method: "GET",
+		title: "C端获取售后列表",
+		url: "/returns/refund/app/search/listRefund",
+	};
+	requestProps = [
+		{ name: "currentPage", required: true, type: "number", desc: "当前页" },
+		{ name: "pageSize", required: true, type: "number", desc: "页量大小" },
+		{
+			name: "sourceType",
+			required: true,
+			type: "number",
+			desc: "4 APP商家，5 APP用户，6 小程序用户，7 H5用户",
+		},
+	];
+	responseProps = [
+		{"name":"errorCode","required":false,"type":"number","desc":"错误码，0 成功"},
+		{"name":"errorMsg","required":false,"type":"string","desc":"错误描述"},
+		{"name":"result","required":false,"type":"object","desc":null,
+		"children":[
+			{"name":"data","required":false,"type":"array","desc":"数据集",
+			"children":[
+				{"name":"refundSn","required":false,"type":"string","desc":"售后单号"},
+				{"name":"orderSn","required":false,"type":"string","desc":"订单号"},
+				{"name":"id","required":false,"type":"number","desc":"售后ID"},
+				{"name":"createTime"},
+				{"name":"refundMoney","required":false,"type":"number","desc":"售后金额"},
+				{"name":"refundTypeStr","required":false,"type":"string","desc":"售后类型描述：如仅退款、退货退款"},
+				{"name":"refundLogisticsMoney","required":false,"type":"number","desc":"退还的运费金额"}
+			]},
+			{"name":"totalCount","required":false,"type":"number","desc":"总记录数"},
+			{"name":"totalPage","required":false,"type":"number","desc":"总页数"}
+		]},
+		{"name":"success","required":false,"type":"boolean","desc":null}
+	]
+	// const typeFileTxtArr = generateTypeFile({
+	// 	title: apiInfo.title,
+	// 	interfaceName: name,
+	// 	requestInterface: getParamsStr(requestProps),
+	// 	responseInterface: getResponseStr(responseProps),
+	// });
+	// typeFileTxtArr.forEach(lineTxt => {
+	// sourceFile.addStatements(`${lineTxt == "" ? " ": lineTxt + "\n"}`)
+	// })
+	// sourceFile.addExportDeclaration
+	const interfaceDeclaration = sourceFile.addInterface({
+		name: "InterfaceName",
+	});
+	interfaceDeclaration.addProperties([
+		{ name: "newMethod1", type: "boolean", hasQuestionToken: true },
+		{ name: "newMethod2", type: "{a:string}" },
+	]);
+	const methodParams = interfaceDeclaration.addProperty({ name: "newMethod", type: "boolean" });
+	methodParams.setHasQuestionToken(true);
+	interfaceDeclaration.setIsExported(true);
 	await project.save();
 	return "";
 };

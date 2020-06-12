@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-6-12 13:53:37
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-12 16:37:11
+ * @LastEditTime: 2020-06-12 19:10:20
  * @Description:
  */
 import { IResponseType } from "@/utils/fetch/type";
@@ -29,4 +29,10 @@ export interface IFrontWithdrawalProps {}
 
 export interface IFrontWithdrawalResponseProps extends IResponseType {
 	result?: IFrontWithdrawalProps;
+}
+
+export interface InterfaceName {
+	newMethod1?: boolean;
+	newMethod2: { a: string };
+	newMethod?: boolean;
 }
