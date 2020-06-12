@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-06-12 14:04:54
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-12 21:32:08
+ * @LastEditTime: 2020-06-12 23:52:26
  * @Description:
  */
 const prettier = require("prettier")
@@ -34,12 +34,12 @@ const generateHeaderComment = ({ username }) => {
 	const createTime = date.toLocaleTimeString("zh", { hour12: false });
 
 	return [
-		`/*`,
+		`/* `,
 		` * @Date: ${createDate} ${createTime}`,
 		` * @LastEditors: ${username}`,
 		` * @LastEditTime: ${createDate} ${createTime}`,
 		` * @Description:`,
-		``,
+		` **/`,
 	];
 };
 
@@ -47,72 +47,13 @@ const generateHeaderComment = ({ username }) => {
  * @name: 生成type文件的依赖
  */
 const generateTypeFileReference = ({ responseTypeUrl }) => {
-	return [`import { IResponseType } from ${responseTypeUrl}`];
+	return [`import { IResponseType } from "${responseTypeUrl}"`];
 };
 
-/**
- * @name: 生成type.ts文件的代码
- */
-const generateTypeFile = ({ title, interfaceName, requestInterface, responseInterface }) => {
-	return [
-		{
-			type: "statement",
-			value: `//---------------------${title}----------------------`,
-		},
-		{
-			type: "interface",
-			export: true,
-			name: `I${interfaceName}RequestProps`,
-			methodList: requestInterface,
-		},
-		{
-			type: "interface",
-			export: true,
-			name: `I${interfaceName}Props`,
-			methodList: responseInterface,
-		},
-		{
-			type: "interface",
-			export: true,
-			name: `I${interfaceName}ResponseProps`,
-			methodList: [{ name: "result", returnType: `I${interfaceName}Props` }],
-		},
-	];
-	return {
-		title: `//---------------------${title}----------------------`,
-		interfaceRequestProps: {
-			name: `I${interfaceName}RequestProps`,
-			methodList: requestInterface,
-		},
-		interfaceProps: {
-			name: `I${interfaceName}Props`,
-			methodList: responseInterface,
-		},
-		interfaceResponseProps: {
-			name: `I${interfaceName}ResponseProps`,
-			methodList: [{ name: "result", returnType: `I${interfaceName}Props` }],
-		},
-	};
-	return [
-		``,
-		`//---------------------${title}----------------------`,
-		``,
-		`export interface I${interfaceName}RequestProps {`,
-		`${requestInterface}`,
-		`}`,
-		``,
-		`export interface I${interfaceName}Props {`,
-		`${responseInterface}`,
-		`}`,
-		``,
-		`export interface I${interfaceName}ResponseProps extends IResponseType {`,
-		`  result?: I${interfaceName}Props;`,
-		`}`,
-	];
-};
 
 module.exports = {
 	prettierCode,
 	upperFirstCase,
-	generateTypeFile,
+	generateHeaderComment,
+	generateTypeFileReference,
 };

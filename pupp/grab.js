@@ -1,11 +1,11 @@
 /*
  * @Date: 2020-05-06 15:04:38
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-12 12:06:19
+ * @LastEditTime: 2020-06-12 23:10:14
  * @Description:
  */
 const puppeteer = require("puppeteer");
-const Config = require("./config");
+const Config = require("../utils/config");
 const EventBus = require("eventbusjs");
 const { account, password } = Config;
 

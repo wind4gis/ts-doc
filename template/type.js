@@ -1,86 +1,17 @@
 /*
  * @Date: 2020-05-07 15:35:11
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-12 23:07:35
+ * @LastEditTime: 2020-06-12 23:56:02
  * @Description:
  */
-const babel = require("@babel/core");
-const path = require("path");
-const { prettierCode, upperFirstCase, generateTypeFile } = require("../utils");
+const { upperFirstCase, generateHeaderComment, generateTypeFileReference } = require("../utils");
 const { Project } = require("ts-morph");
+const { username, responseTypeUrl } = require("../utils/config");
 const project = new Project({
 	tsConfigFilePath: "./tsconfig.json",
 	skipFileDependencyResolution: true,
 	addFilesFromTsConfig: false,
 });
-const getParamsStr = (propsArr) => {
-	const N = "\n";
-	const len = propsArr.length;
-	return propsArr.reduce((total, cur, i) => {
-		total += `  ${cur.name}${cur.required === "是" ? "" : "?"}: ${cur.type}; // ${cur.desc}${
-			i === len - 1 ? "" : N
-		}`;
-		return total;
-	}, "");
-};
-
-const getResponseItemStr = (type, array) => {
-	const N = "\n";
-	const len = array.length;
-	let result = `{${N}`;
-	result += array.reduce((total, cur, i) => {
-		total += `  ${cur.name}${cur.required === "是" ? "" : "?"}: ${
-			cur.children ? getResponseItemStr(cur.type, cur.children) : cur.type
-		}; // ${cur.desc}${i === len - 1 ? "" : N}`;
-		return total;
-	}, "");
-	result += `${N}}${type === "array" ? [] : ""}`;
-	return result;
-};
-
-const getTsResponse = (responseProp) => {
-	responseProp = responseProp.some((prop) => prop.name === "result")
-		? responseProp
-				.flatMap((prop) => {
-					if (prop.name !== "result") {
-						return null;
-					}
-					return prop.children;
-				})
-				.filter(Boolean)
-		: responseProp;
-	return;
-};
-
-/**
- * @name: 根据response对象生成接口数据
- */
-const getResponseStr = (responseProp) => {
-	const N = "\n";
-	const len = responseProp.length;
-	let result = ``;
-	responseProp = responseProp.some((prop) => prop.name === "result")
-		? responseProp
-				.flatMap((prop) => {
-					if (prop.name !== "result") {
-						return null;
-					}
-					return prop.children;
-				})
-				.filter(Boolean)
-		: responseProp;
-	result += responseProp.reduce((total, cur, i) => {
-		if (cur.children) {
-			total += `  ${cur.name}: ${getResponseItemStr(cur.type, cur.children)},${N}`;
-		} else {
-			total += `  ${cur.name}${cur.required === "是" ? "" : "?"}: ${cur.type}; // ${cur.desc}${
-				i === len - 1 ? "" : N
-			}`;
-		}
-		return total;
-	}, "");
-	return result;
-};
 
 /**
  * @name: 根据url路径名推断接口的名称
@@ -91,59 +22,84 @@ const getApiName = ({ url }) => {
 	return upperFirstCase(tmpName);
 };
 
-const parse = async ({ apiInfo, requestProps, responseProps }) => {
+const parse = async (fileUrl, { apiInfo, requestProps, responseProps }) => {
 	const name = getApiName(apiInfo);
-	const N = "\n";
-	const date = new Date();
-	const createDate = date.toLocaleDateString("zh").replace(/\//g, "-");
-	const createTime = date.toLocaleTimeString("zh", { hour12: false });
-
 	requestInfo["desc"] = apiInfo.title;
 	requestInfo["request"].push(`I${name}RequestProps`);
 	requestInfo["response"].push(`I${name}ResponseProps`);
-
-	// const result = `/*${N} * @Date: ${createDate} ${createTime}${N} * @LastEditors: Huang canfeng${N} * @LastEditTime: ${createDate} ${createTime}${N} * @Description:${N} */${N}import { IResponseType } from "@/utils/fetch/type";${N}${N}//---------------------${
-	// 	apiInfo.title
-	// }----------------------${N}export interface I${name}RequestProps {${N}${getParamsStr(
-	// 	requestProps
-	// )}${N}}${N}${N}export interface I${name}Props {${N}${getResponseStr(
-	// 	responseProps
-	// )}${N}}${N}${N}export interface I${name}ResponseProps extends IResponseType {${N}  result?: I${name}Props;${N}}
-  // `;
-	// return prettierCode(result);
-	
+	responseProps = responseProps.result && responseProps.length > 1 ? responseProps.result : responseProps;
+	astInit(fileUrl, { apiInfo, requestProps, responseProps });
 };
 
 /**
- * @name: 接收源文件和通过url读取的接口信息，在源文件的基础上新增对应的接口文档信息
+ * @name: 初始化或覆盖该文件，生成对应的接口文档信息
  */
-const astAdd = async (typeFileUrl, { apiInfo, requestProps, responseProps } = {}) => {
-	const name = getApiName(apiInfo);
-	const sourceFile = project.addSourceFilesAtPaths(typeFileUrl)[0];
-	sourceFile.addStatements((writer) => {
-		writer.writeLine(`//---------------------${apiInfo.title}----------------------`);
-		buildInterfaceFromInfo({ interfaceName: `I${name}RequestProps`, propsInfo: requestProps, writer });
-		buildInterfaceFromInfo({ interfaceName: `I${name}Props`, propsInfo: responseProps, writer });
-		writer.writeLine(
-			`export interface I${name}ResponseProps extends IResponseType {result?: I${name}Props;}`
-		);
-	});
-	sourceFile.formatText({
-		placeOpenBraceOnNewLineForFunctions: true,
-	});
+const astInit = async (fileUrl, { apiInfo, requestProps, responseProps } = {}) => {
+	const sourceFile = project.createSourceFile(fileUrl, "", { overwrite: true });
+	generateHeader(sourceFile);
+	buildInterfaceFromInfo(sourceFile, { apiInfo, requestProps, responseProps });
 	await project.save();
 	return "";
 };
 
 /**
- * @name: 构建单个文档描述对应的接口对象
+ * @name: 接收源文件和通过url读取的接口信息，在源文件的基础上新增对应的接口文档信息
  */
-const buildInterfaceFromInfo = (...props) => {
+const astAdd = async (fileUrl, { apiInfo, requestProps, responseProps } = {}) => {
+	const sourceFile = project.addSourceFilesAtPaths(fileUrl)[0];
+	buildInterfaceFromInfo(sourceFile, { apiInfo, requestProps, responseProps });
+	await project.save();
+	return "";
+};
+
+/**
+ * @name: 生成顶部描述
+ */
+const generateHeader = (sourceFile) => {
+	// 生成顶部描述
+	const headerComment = generateHeaderComment({ username });
+	headerComment.forEach((comment) => {
+		sourceFile.addStatements((writer) => {
+			writer.write(comment);
+		});
+	});
+	// 生成文件依赖
+	const fileReference = generateTypeFileReference({ responseTypeUrl });
+	fileReference.forEach((comment) => {
+		sourceFile.addStatements((writer) => {
+			writer.writeLine(comment);
+		});
+	});
+};
+
+/**
+ * @name: 根据文档信息构建接口对象的描述
+ */
+const buildInterfaceFromInfo = (sourceFile, { apiInfo, requestProps, responseProps } = {}) => {
+	const name = getApiName(apiInfo);
+	// 生成描述
+	sourceFile.addStatements((writer) => {
+		writer.writeLine(`//---------------------${apiInfo.title}----------------------`);
+		buildSingleInterfaceFromInfo({ interfaceName: `I${name}RequestProps`, propsInfo: requestProps, writer });
+		buildSingleInterfaceFromInfo({ interfaceName: `I${name}Props`, propsInfo: responseProps, writer });
+		writer.writeLine(
+			`export interface I${name}ResponseProps extends IResponseType {result?: I${name}Props;}`
+		);
+	});
+	// 格式化代码
+	sourceFile.formatText({
+		placeOpenBraceOnNewLineForFunctions: true,
+	});
+};
+
+/**
+ * @name: 构建文档里单个request或response对象的描述
+ */
+const buildSingleInterfaceFromInfo = (...props) => {
 	let queue = props;
 	while (queue.length) {
 		let { interfaceName, propsInfo, writer } = queue.shift();
 		writer.write(`export interface ${interfaceName}`).block(() => {
-			// buildInterfaceFromInfo({ propsInfo: requestProps, writer });
 			propsInfo.forEach((prop) => {
 				if (prop.children) {
 					const parentInterfaceName = `I${upperFirstCase(prop.name)}Props`;

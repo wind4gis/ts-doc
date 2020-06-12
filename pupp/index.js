@@ -2,7 +2,7 @@
 /*
  * @Date: 2020-05-07 11:44:27
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-12 22:53:48
+ * @LastEditTime: 2020-06-12 23:47:45
  * @Description:
  */
 const commander = require("commander");
@@ -38,26 +38,18 @@ if (errors.length) {
 const curFolder = path.join(process.cwd(), "output");
 
 const initFn = async (commander, url) => {
+	const idxFileUrl = path.resolve(curFolder, "index.ts");
+	const typeFileUrl = path.resolve(curFolder, "type.ts");
 	const fileExists =
 		fs.existsSync(path.resolve(curFolder, "index.ts")) || fs.existsSync(path.resolve(curFolder, "type.ts"));
-	if (fileExists && !commander.force) {
-		return console.error(chalk.red("已经存在重命名的文件"));
+	if (fileExists) {
+		if (!commander.force) {
+			return console.error(chalk.red("已经存在重命名的文件"));
+		}
 	}
 	await buildApiInfo(url);
 	EventBus.addEventListener("apiInfo", async ({ type }, { apiInfo, requestProps, responseProps }) => {
-		const typeTxt = await typeTemplate.parse({ apiInfo, requestProps, responseProps });
-		fs.writeFile(path.resolve(curFolder, "type.ts"), typeTxt, (err) => {
-			if (err) {
-				return console.error(chalk.red(err));
-			}
-		});
-		fs.writeFile(
-			path.resolve(curFolder, "index.ts"),
-			indexTemplate.parse({ apiInfo, requestInfo: typeTemplate.requestInfo }),
-			(err) => {
-				err && console.error(chalk.red(err));
-			}
-		);
+		await typeTemplate.parse(typeFileUrl, { apiInfo, requestProps, responseProps });
 	});
 };
 
