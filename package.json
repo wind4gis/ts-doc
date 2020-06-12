@@ -13,13 +13,25 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@babel/core": "^7.10.2",
+    "@babel/generator": "^7.10.2",
+    "@babel/parser": "^7.10.2",
+    "@babel/plugin-transform-typescript": "^7.10.1",
+    "@babel/template": "^7.10.1",
+    "@babel/traverse": "^7.10.1",
+    "@babel/types": "^7.10.2",
+    "babylon": "^6.18.0",
     "chalk": "^4.0.0",
     "commander": "^5.1.0",
-    "eslint": "^6.8.0",
-    "puppeteer": "^2.0.0"
+    "eslint": "^7.2.0",
+    "eslint-config-recommended": "^4.1.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eventbusjs": "^0.2.0",
+    "puppeteer": "^2.1.1"
   },
   "devDependencies": {
     "@types/node": "^13.1.0",
+    "prettier": "^2.0.5",
     "ts-node": "^8.5.4",
     "typescript": "^3.7.4"
   }

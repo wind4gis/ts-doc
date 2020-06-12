@@ -8,8 +8,8 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "program": "${workspaceFolder}\\pupp\\index.js",
-      "args": ["init", "http://peck.weilaijishi.com/#/main/index/5e5e0bbf5bbabf755f69c676/doc/api/show/5e7c743ce61b6f5b944eb422"],
+      "program": "${workspaceFolder}/pupp/index.js",
+      "args": ["add", "http://peck.weilaijishi.com/#/main/index/5e5cd38c5bbabf755f69c133/doc/api/show/5e81a011caa6f900d127d2e4"],
       "skipFiles": ["<node_internals>/**"]
     }
   ]

@@ -7,15 +7,9 @@
       "jsx": true
     }
   },
-  "extends": ["react-app"],
-  "plugins": ["react", "react-hooks"],
+  "extends": ["node"],
+  "plugins": ["node"],
   "settings": {
-    /// Use eslint-import-resolver-webpack for import alias(e.g import xx from '@/xxx')
-    "import/resolver": {
-      "webpack": {
-        "config": "config/webpack-dev.js"
-      }
-    }
   },
   "rules": {
     "react/require-default-props": 0,
@@ -40,6 +34,7 @@
   },
   "env": {
     "browser": true,
-    "es6": true
+    "es6": true,
+    "node": true
   }
 }
