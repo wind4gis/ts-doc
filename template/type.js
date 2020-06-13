@@ -1,10 +1,16 @@
 /*
  * @Date: 2020-05-07 15:35:11
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-12 23:56:02
+ * @LastEditTime: 2020-06-14 02:20:36
  * @Description:
  */
-const { upperFirstCase, generateHeaderComment, generateTypeFileReference } = require("../utils");
+const {
+	prettierCode,
+	upperFirstCase,
+	getApiName,
+	generateHeaderComment,
+	generateTypeFileReference,
+} = require("../utils");
 const { Project } = require("ts-morph");
 const { username, responseTypeUrl } = require("../utils/config");
 const project = new Project({
@@ -14,23 +20,36 @@ const project = new Project({
 });
 
 /**
- * @name: 根据url路径名推断接口的名称
+ * @name: 初始化
  */
-const getApiName = ({ url }) => {
-	const urlArray = url.split("/");
-	const tmpName = urlArray.length ? urlArray[urlArray.length - 1] : "";
-	return upperFirstCase(tmpName);
-};
-
-const parse = async (fileUrl, { apiInfo, requestProps, responseProps }) => {
-	const name = getApiName(apiInfo);
-	requestInfo["desc"] = apiInfo.title;
-	requestInfo["request"].push(`I${name}RequestProps`);
-	requestInfo["response"].push(`I${name}ResponseProps`);
+const initApi = async (fileUrl, { apiInfo, requestProps, responseProps }) => {
 	responseProps = responseProps.result && responseProps.length > 1 ? responseProps.result : responseProps;
 	astInit(fileUrl, { apiInfo, requestProps, responseProps });
+	return getRequestInfo({ apiInfo });
 };
-
+/**
+ * @name: 添加数据
+ */
+const addApi = async (fileUrl, { apiInfo, requestProps, responseProps }) => {
+	responseProps = responseProps.result && responseProps.length > 1 ? responseProps.result : responseProps;
+	astAdd(fileUrl, { apiInfo, requestProps, responseProps });
+	return getRequestInfo({ apiInfo });
+};
+/**
+ * @name: 设置getRequestInfo，用于构建index文件
+ */
+const getRequestInfo = ({ apiInfo }) => {
+	const { apiName } = getApiName(apiInfo);
+	const requestInfo = {
+		desc: "",
+		request: [],
+		response: [],
+	};
+	requestInfo["desc"] = apiInfo.title;
+	requestInfo["request"].push(`I${apiName}RequestProps`);
+	requestInfo["response"].push(`I${apiName}ResponseProps`);
+	return requestInfo;
+};
 /**
  * @name: 初始化或覆盖该文件，生成对应的接口文档信息
  */
@@ -39,7 +58,6 @@ const astInit = async (fileUrl, { apiInfo, requestProps, responseProps } = {}) =
 	generateHeader(sourceFile);
 	buildInterfaceFromInfo(sourceFile, { apiInfo, requestProps, responseProps });
 	await project.save();
-	return "";
 };
 
 /**
@@ -49,24 +67,21 @@ const astAdd = async (fileUrl, { apiInfo, requestProps, responseProps } = {}) =>
 	const sourceFile = project.addSourceFilesAtPaths(fileUrl)[0];
 	buildInterfaceFromInfo(sourceFile, { apiInfo, requestProps, responseProps });
 	await project.save();
-	return "";
 };
 
 /**
- * @name: 生成顶部描述
+ * @name: 生成type文件袋顶部描述
  */
 const generateHeader = (sourceFile) => {
-	// 生成顶部描述
-	const headerComment = generateHeaderComment({ username });
-	headerComment.forEach((comment) => {
-		sourceFile.addStatements((writer) => {
-			writer.write(comment);
+	const headerComment = generateHeaderComment({ username }); // 生成顶部描述
+	const fileReference = generateTypeFileReference({ responseTypeUrl }); // 生成文件依赖
+	sourceFile.addStatements((writer) => {
+		headerComment.forEach((comment) => {
+			// 生成顶部描述
+			writer.writeLine(comment);
 		});
-	});
-	// 生成文件依赖
-	const fileReference = generateTypeFileReference({ responseTypeUrl });
-	fileReference.forEach((comment) => {
-		sourceFile.addStatements((writer) => {
+		fileReference.forEach((comment) => {
+			// 生成文件依赖
 			writer.writeLine(comment);
 		});
 	});
@@ -76,20 +91,24 @@ const generateHeader = (sourceFile) => {
  * @name: 根据文档信息构建接口对象的描述
  */
 const buildInterfaceFromInfo = (sourceFile, { apiInfo, requestProps, responseProps } = {}) => {
-	const name = getApiName(apiInfo);
+	const { apiName } = getApiName(apiInfo);
 	// 生成描述
 	sourceFile.addStatements((writer) => {
-		writer.writeLine(`//---------------------${apiInfo.title}----------------------`);
-		buildSingleInterfaceFromInfo({ interfaceName: `I${name}RequestProps`, propsInfo: requestProps, writer });
-		buildSingleInterfaceFromInfo({ interfaceName: `I${name}Props`, propsInfo: responseProps, writer });
+		writer.writeLine(`\n//---------------------${apiInfo.title}----------------------`);
+		buildSingleInterfaceFromInfo({
+			interfaceName: `I${apiName}RequestProps`,
+			propsInfo: requestProps,
+			writer,
+		});
+		buildSingleInterfaceFromInfo({ interfaceName: `I${apiName}Props`, propsInfo: responseProps, writer });
 		writer.writeLine(
-			`export interface I${name}ResponseProps extends IResponseType {result?: I${name}Props;}`
+			`export interface I${apiName}ResponseProps extends IResponseType {result?: I${apiName}Props;}`
 		);
 	});
 	// 格式化代码
-	sourceFile.formatText({
-		placeOpenBraceOnNewLineForFunctions: true,
-	});
+	const formatText = await prettierCode(sourceFile.getText());
+	sourceFile.removeText(sourceFile.getPos(), sourceFile.getEnd());
+	sourceFile.insertText(0, formatText);
 };
 
 /**
@@ -119,6 +138,7 @@ const buildSingleInterfaceFromInfo = (...props) => {
 				}
 			});
 		});
+		writer.writeLine("");
 	}
 };
 
@@ -133,14 +153,7 @@ const buildSingleProp = ({ writer, prop, isArray = false }) => {
 	);
 };
 
-const requestInfo = {
-	desc: "",
-	request: [],
-	response: [],
-};
-
 module.exports = {
-	parse,
-	astAdd,
-	requestInfo,
+	initApi,
+	addApi,
 };

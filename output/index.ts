@@ -1,17 +1,19 @@
-/*
- * @Date: 2020-6-12 21:32:23
+/**
+ * @Date: 2020-6-14 2:18:52
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-6-12 21:32:23
+ * @LastEditTime: 2020-6-14 2:18:52
  * @Description:
- */
-import { get } from "@/utils/fetch/index";
-import { IQueryWithDrawDetailRequestProps, IQueryWithDrawDetailResponseProps } from "./type";
+ **/
+import { get, post, postJson } from "@/utils/fetch/index";
+import { IRefuseReceiveRequestProps, IRefuseReceiveResponseProps } from "./type";
+
 //---------------------请求的url地址----------------------
 const urls = {
-  queryWithDrawDetail: "/erpapp/withDrawal/queryWithDrawDetail", // 展示用户提现明细
-}
+	refuseReceive: "/returns/refund/app/flow/refuseReceive", // 移动端拒收
+};
 
 //---------------------发起请求的方法----------------------
-// 展示用户提现明细
-export const getQueryWithDrawDetail: (IQueryWithDrawDetailRequestProps) => Promise<IQueryWithDrawDetailResponseProps> = () => get(urls.queryWithDrawDetail)
-  
+// 移动端拒收
+export const postRefuseReceive: (IRefuseReceiveRequestProps) => Promise<IRefuseReceiveResponseProps> = (
+	params
+) => post(urls.refuseReceive, params);

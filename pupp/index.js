@@ -2,18 +2,19 @@
 /*
  * @Date: 2020-05-07 11:44:27
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-12 23:47:45
+ * @LastEditTime: 2020-06-13 18:22:43
  * @Description:
  */
 const commander = require("commander");
 const chalk = require("chalk");
+const ora = require("ora");
 const buildApiInfo = require("./grab");
 const fs = require("fs");
-const fsPromises = require("fs").promises;
 const path = require("path");
 const EventBus = require("eventbusjs");
 const typeTemplate = require("../template/type");
 const indexTemplate = require("../template/index");
+const spinnerFactory = require("../utils/spinner");
 
 const cmdList = ["init", "add"];
 const pkg = require("../package.json");
@@ -47,9 +48,16 @@ const initFn = async (commander, url) => {
 			return console.error(chalk.red("已经存在重命名的文件"));
 		}
 	}
+	spinnerFactory.showLoading({ text: "开始抓取文档数据", color: "yellow" });
 	await buildApiInfo(url);
+	spinnerFactory.succeed("抓取文档结束");
+	// 事件机制，监听爬虫抓取结果
 	EventBus.addEventListener("apiInfo", async ({ type }, { apiInfo, requestProps, responseProps }) => {
-		await typeTemplate.parse(typeFileUrl, { apiInfo, requestProps, responseProps });
+		spinnerFactory.showLoading({ text: "开始构建ts文档", color: "green" });
+		const requestInfo = await typeTemplate.initApi(typeFileUrl, { apiInfo, requestProps, responseProps });
+		await indexTemplate.initApi(idxFileUrl, { apiInfo, requestInfo });
+		spinnerFactory.succeed("构建ts文档结束");
+		spinnerFactory.stop();
 	});
 };
 
@@ -64,12 +72,19 @@ const addFn = async (commander, url) => {
 	if (!fileExists) {
 		return console.error(chalk.red("不存在对应的文件"));
 	}
+	spinnerFactory.showLoading({ text: "开始抓取文档数据", color: "yellow" });
 	await buildApiInfo(url);
-	EventBus.addEventListener("apiInfo", ({ type }, { apiInfo, requestProps, responseProps }) => {
-		typeTemplate.astAdd(typeFileUrl, { apiInfo, requestProps, responseProps });
+	spinnerFactory.succeed("抓取文档结束");
+	// 事件机制，监听爬虫抓取结果
+	EventBus.addEventListener("apiInfo", async ({ type }, { apiInfo, requestProps, responseProps }) => {
+		spinnerFactory.showLoading({ text: "开始构建ts文档", color: "green" });
+		const requestInfo = await typeTemplate.addApi(typeFileUrl, { apiInfo, requestProps, responseProps });
+		await indexTemplate.addApi(idxFileUrl, { apiInfo, requestInfo });
+		spinnerFactory.succeed("构建ts文档结束");
+		spinnerFactory.stop();
 	});
 };
 
 const cmdCallback = { init: initFn, add: addFn };
-const fn = cmdCallback[cmd] || (() => {});
+const fn = cmdCallback[cmd] || (() => null);
 fn(commander, url);
