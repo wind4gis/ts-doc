@@ -1,11 +1,11 @@
 /*
  * @Date: 2020-05-06 15:04:38
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-12 23:10:14
+ * @LastEditTime: 2020-06-14 17:34:20
  * @Description:
  */
 const puppeteer = require("puppeteer");
-const Config = require("../utils/config");
+const Config = require("../config/tsdoc-config");
 const EventBus = require("eventbusjs");
 const { account, password } = Config;
 
@@ -23,9 +23,6 @@ const buildApiInfo = async (url) => {
 	await page.goto(url, { waitUntil: "networkidle2" });
 	await page.waitForNavigation();
 
-	let apiInfo = {}; 
-	let requestProps = []; 
-	let responseProps = []; 
 	page.on("response", async (res) => {
 		if (res && res.url().indexOf("find.query") >= 0) {
 			const txt = await res.text();
@@ -91,26 +88,6 @@ const login = async ({ page }) => {
 	await page.type("input[formcontrolname=passWord]", `${password}`);
 
 	await Promise.all([page.click("button[type=button]"), page.waitForNavigation()]);
-};
-
-const buildApiParams = async ({ tbody, apiProps }) => {
-	const fieldMap = ["name", "required", "type", "rule", "defaultValue", "desc"];
-	const tdList = await tbody.$$("td");
-	let curProps = {};
-	for (let idx = 0; idx < tdList.length; idx++) {
-		const tdItem = tdList[idx];
-		const tdTxtItem = await tdItem.$("span[class=ng-star-inserted]");
-		const curFieldValue = tdTxtItem
-			? await tdTxtItem.evaluate((el) => el.innerText)
-			: await tdItem.evaluate((el) => el.innerText);
-		let curIdx = idx % 6;
-		if (curIdx === 0) {
-			curProps = {};
-			apiProps.push(curProps);
-		}
-		const curFieldName = fieldMap[curIdx];
-		curProps[curFieldName] = curFieldValue;
-	}
 };
 
 module.exports = buildApiInfo;

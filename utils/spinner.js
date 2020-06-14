@@ -1,10 +1,11 @@
 /*
  * @Date: 2020-06-13 14:37:38
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-14 14:07:17
+ * @LastEditTime: 2020-06-14 17:00:19
  * @Description: 在命令行展示loading的spinner
  */
 const ora = require("ora");
+const chalk = require("chalk");
 
 class SpinnerFactory {
 	static _spinner = null;
@@ -22,10 +23,10 @@ class SpinnerFactory {
 		SpinnerFactory.getInstance().color = color;
 	};
 	static succeed = (text = "") => {
-		SpinnerFactory.getInstance().succeed(text);
+		SpinnerFactory.getInstance().succeed(chalk.green(text));
 	};
 	static fail = (text = "") => {
-		SpinnerFactory.getInstance().fail(text);
+		SpinnerFactory.getInstance().fail(chalk.red(text));
 	};
 	static stop = () => {
 		if (SpinnerFactory._spinner) {

@@ -1,11 +1,11 @@
 /*
  * @Date: 2020-05-09 14:07:59
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-14 15:12:35
+ * @LastEditTime: 2020-06-14 16:44:38
  * @Description:
  */
 const { getApiName, generateHeaderComment, generateIdxFileReference } = require("../utils");
-const { username, fetchfilePath } = require("../utils/config");
+const { username, fetchfilePath } = require("../config/tsdoc-config");
 const ProjectFactory = require("../utils/project");
 const project = ProjectFactory.getInstance();
 

@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-05-07 15:35:11
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-14 15:54:48
+ * @LastEditTime: 2020-06-14 16:43:39
  * @Description:
  */
 const {
@@ -11,7 +11,7 @@ const {
 	generateTypeFileReference,
 	normalResponseProps,
 } = require("../utils");
-const { username, responseTypeUrl } = require("../utils/config");
+const { username, responseTypeUrl } = require("../config/tsdoc-config");
 const ProjectFactory = require("../utils/project");
 const project = ProjectFactory.getInstance();
 
