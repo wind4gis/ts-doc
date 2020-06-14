@@ -76,8 +76,8 @@ const generateHeaderComment = ({ username }) => {
 /**
  * @name: 生成type文件的依赖
  */
-const generateTypeFileReference = ({ responseTypeUrl }) => {
-	return [`import { IResponseType } from "${responseTypeUrl}"`];
+const generateTypeFileReference = ({ responsefilePath }) => {
+	return [`import { IResponseType } from "${responsefilePath}"`];
 };
 
 /**

@@ -11,7 +11,7 @@ const {
 	generateTypeFileReference,
 	normalResponseProps,
 } = require("../utils");
-const { username, responseTypeUrl } = require("../config/tsdoc-config");
+const { username, responsefilePath } = require("../config/tsdoc-config");
 const ProjectFactory = require("../utils/project");
 const project = ProjectFactory.getInstance();
 
@@ -65,7 +65,7 @@ const getRequestInfo = ({ apiInfo }) => {
  */
 const generateHeader = (sourceFile) => {
 	const headerComment = generateHeaderComment({ username }); // 生成顶部描述
-	const fileReference = generateTypeFileReference({ responseTypeUrl }); // 生成文件依赖
+	const fileReference = generateTypeFileReference({ responsefilePath }); // 生成文件依赖
 	sourceFile.addStatements((writer) => {
 		headerComment.forEach((comment) => {
 			// 生成顶部描述
