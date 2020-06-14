@@ -1,0 +1,1 @@
+# 通过puppeteer、ts-morph和commander编写命令行工具，抓取api文档的接口数据，利用事件监听响应机制，动态生成ts文档以及支持智能添加
