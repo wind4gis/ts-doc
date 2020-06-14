@@ -2,7 +2,7 @@
 /*
  * @Date: 2020-05-07 11:44:27
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-13 18:22:43
+ * @LastEditTime: 2020-06-14 15:56:41
  * @Description:
  */
 const commander = require("commander");
@@ -36,11 +36,11 @@ if (errors.length) {
 	console.error(chalk.red(errors.join(";\n")));
 	return;
 }
-const curFolder = path.join(process.cwd(), "output");
+const curFolder = process.cwd();
 
 const initFn = async (commander, url) => {
-	const idxFileUrl = path.resolve(curFolder, "index.ts");
-	const typeFileUrl = path.resolve(curFolder, "type.ts");
+	const idxfilePath = path.resolve(curFolder, "index.ts");
+	const typefilePath = path.resolve(curFolder, "type.ts");
 	const fileExists =
 		fs.existsSync(path.resolve(curFolder, "index.ts")) || fs.existsSync(path.resolve(curFolder, "type.ts"));
 	if (fileExists) {
@@ -54,8 +54,8 @@ const initFn = async (commander, url) => {
 	// 事件机制，监听爬虫抓取结果
 	EventBus.addEventListener("apiInfo", async ({ type }, { apiInfo, requestProps, responseProps }) => {
 		spinnerFactory.showLoading({ text: "开始构建ts文档", color: "green" });
-		const requestInfo = await typeTemplate.initApi(typeFileUrl, { apiInfo, requestProps, responseProps });
-		await indexTemplate.initApi(idxFileUrl, { apiInfo, requestInfo });
+		const requestInfo = await typeTemplate.initApi(typefilePath, { apiInfo, requestProps, responseProps });
+		await indexTemplate.initApi(idxfilePath, { apiInfo, requestInfo });
 		spinnerFactory.succeed("构建ts文档结束");
 		spinnerFactory.stop();
 	});
@@ -66,9 +66,9 @@ const initFn = async (commander, url) => {
  *
  */
 const addFn = async (commander, url) => {
-	const idxFileUrl = path.resolve(curFolder, "index.ts");
-	const typeFileUrl = path.resolve(curFolder, "type.ts");
-	const fileExists = fs.existsSync(idxFileUrl) && fs.existsSync(typeFileUrl);
+	const idxfilePath = path.resolve(curFolder, "index.ts");
+	const typefilePath = path.resolve(curFolder, "type.ts");
+	const fileExists = fs.existsSync(idxfilePath) && fs.existsSync(typefilePath);
 	if (!fileExists) {
 		return console.error(chalk.red("不存在对应的文件"));
 	}
@@ -78,8 +78,8 @@ const addFn = async (commander, url) => {
 	// 事件机制，监听爬虫抓取结果
 	EventBus.addEventListener("apiInfo", async ({ type }, { apiInfo, requestProps, responseProps }) => {
 		spinnerFactory.showLoading({ text: "开始构建ts文档", color: "green" });
-		const requestInfo = await typeTemplate.addApi(typeFileUrl, { apiInfo, requestProps, responseProps });
-		await indexTemplate.addApi(idxFileUrl, { apiInfo, requestInfo });
+		const requestInfo = await typeTemplate.addApi(typefilePath, { apiInfo, requestProps, responseProps });
+		await indexTemplate.addApi(idxfilePath, { apiInfo, requestInfo });
 		spinnerFactory.succeed("构建ts文档结束");
 		spinnerFactory.stop();
 	});

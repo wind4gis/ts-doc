@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-06-12 14:04:54
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-13 15:46:03
+ * @LastEditTime: 2020-06-14 15:43:01
  * @Description:
  */
 const prettier = require("prettier");
@@ -14,6 +14,26 @@ const prettierCode = (result) => {
 			return prettier.format(result, options);
 		});
 	});
+};
+
+/**
+ * @name: 格式化文档的response对象，去除除了result之外的属性值
+ */
+const normalResponseProps = (responseProps) => {
+	const keyList = responseProps.flatMap((prop) => prop.name);
+	const responseKeyList = ["result", "success", "errorCode", "errorMsg", "code", "msg"];
+	if (keyList.length > 1) {
+		let count = 0;
+		responseKeyList.forEach((responseKey) => {
+			if (keyList.some((key) => key === responseKey)) {
+				count++;
+			}
+		});
+		if (count >= 4) {
+			responseProps = responseProps.find((r) => r.name === "result");
+		}
+	}
+	return [responseProps];
 };
 
 /**
@@ -43,12 +63,12 @@ const generateHeaderComment = ({ username }) => {
 	const createTime = date.toLocaleTimeString("zh", { hour12: false });
 
 	return [
-		`/** `,
+		`/* `,
 		` * @Date: ${createDate} ${createTime}`,
 		` * @LastEditors: ${username}`,
 		` * @LastEditTime: ${createDate} ${createTime}`,
 		` * @Description:`,
-		` **/`,
+		` */`,
 	];
 };
 
@@ -62,14 +82,15 @@ const generateTypeFileReference = ({ responseTypeUrl }) => {
 /**
  * @name: 生成index文件的依赖
  */
-const generateIdxFileReference = ({ fetchFileUrl }) => {
-	return [`import { get, post, postJson } from "${fetchFileUrl}"`];
+const generateIdxFileReference = ({ fetchfilePath }) => {
+	return [`import { get, post, postJson } from "${fetchfilePath}"`];
 };
 
 module.exports = {
 	getApiName,
 	prettierCode,
 	upperFirstCase,
+	normalResponseProps,
 	generateHeaderComment,
 	generateTypeFileReference,
 	generateIdxFileReference,

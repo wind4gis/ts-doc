@@ -9,5 +9,5 @@ module.exports = {
   password: 123456,
   username: "Huang canfeng",
   responseTypeUrl: `@/utils/fetch/type`,
-  fetchFileUrl: `@/utils/fetch/index`
+  fetchfilePath: `@/utils/fetch/index`
 }

@@ -1,44 +1,42 @@
 /*
  * @Date: 2020-05-09 14:07:59
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-14 02:20:25
+ * @LastEditTime: 2020-06-14 15:12:35
  * @Description:
  */
-const { prettierCode, getApiName, generateHeaderComment, generateIdxFileReference } = require("../utils");
-const { username, fetchFileUrl } = require("../utils/config");
-const { Project } = require("ts-morph");
-const project = new Project({
-	tsConfigFilePath: "./tsconfig.json",
-	skipFileDependencyResolution: true,
-	addFilesFromTsConfig: false,
-});
+const { getApiName, generateHeaderComment, generateIdxFileReference } = require("../utils");
+const { username, fetchfilePath } = require("../utils/config");
+const ProjectFactory = require("../utils/project");
+const project = ProjectFactory.getInstance();
 
 /**
  * @name: 初始化或覆盖该文件，生成对应的接口文档信息
  */
-const initApi = async (fileUrl, { apiInfo, requestInfo } = {}) => {
+const initApi = async (filePath, { apiInfo, requestInfo } = {}) => {
 	const { request = [], response, desc } = requestInfo;
-	const sourceFile = project.createSourceFile(fileUrl, "", { overwrite: true });
+	const sourceFile = project.createSourceFile(filePath, "", { overwrite: true });
 	generateHeader(sourceFile);
 	initInterfaceFromInfo(sourceFile, { apiInfo, request, response, desc });
-	await project.save();
+	// 格式化代码
+	await ProjectFactory.formatSave(filePath);
 };
 /**
  * @name: 在之前生成的index文件上追加api接口描述
  */
-const addApi = async (fileUrl, { apiInfo, requestInfo } = {}) => {
+const addApi = async (filePath, { apiInfo, requestInfo } = {}) => {
 	const { request = [], response, desc } = requestInfo;
-	const sourceFile = project.addSourceFilesAtPaths(fileUrl)[0];
+	const sourceFile = project.addSourceFilesAtPaths(filePath)[0];
 	addInterfaceFromInfo(sourceFile, { apiInfo, request, response, desc });
-	await project.save();
+	// 格式化代码
+	await ProjectFactory.formatSave(filePath);
 };
-
+//---------------------生成代码----------------------
 /**
  * @name: 生成idx文件袋顶部描述
  */
 const generateHeader = (sourceFile) => {
 	const headerComment = generateHeaderComment({ username }); // 生成顶部描述
-	const fileReference = generateIdxFileReference({ fetchFileUrl }); // 生成文件依赖
+	const fileReference = generateIdxFileReference({ fetchfilePath }); // 生成文件依赖
 	sourceFile.addStatements((writer) => {
 		headerComment.forEach((comment) => {
 			// 生成顶部描述
@@ -81,13 +79,10 @@ const initInterfaceFromInfo = async (sourceFile, { apiInfo, request, response, d
 			}> = (params) => ${method}(urls.${urlName}, params)`
 		);
 	});
-
-	// 格式化代码
-	const formatText = await prettierCode(sourceFile.getText());
-	sourceFile.removeText(sourceFile.getPos(), sourceFile.getEnd());
-	sourceFile.insertText(0, formatText);
 };
-
+/**
+ * @name: 接收源文件和通过url读取的接口信息，在源文件的基础上新增对应的接口文档信息
+ */
 const addInterfaceFromInfo = (sourceFile, { apiInfo, request, response, desc } = {}) => {
 	const typeList = (request || []).concat(response);
 	const { url } = apiInfo;
@@ -115,9 +110,6 @@ const addInterfaceFromInfo = (sourceFile, { apiInfo, request, response, desc } =
 			}> = (params) => ${method}(urls.${urlName}, params)`
 		);
 	});
-	const formatText = await prettierCode(sourceFile.getText());
-	sourceFile.removeText(sourceFile.getPos(), sourceFile.getEnd());
-	sourceFile.insertText(0, formatText);
 };
 
 module.exports = { initApi, addApi };
