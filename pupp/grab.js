@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-05-06 15:04:38
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-14 18:19:42
+ * @LastEditTime: 2020-06-14 19:50:55
  * @Description:
  */
 const puppeteer = require("puppeteer");
@@ -14,7 +14,7 @@ const { username, password } = Config;
  */
 const buildApiInfo = async (url) => {
 	const browser = await puppeteer.launch({
-		headless: false,
+		headless: true,
 		devtools: false,
 		timeout: 20000,
 	});
