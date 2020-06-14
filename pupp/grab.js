@@ -1,24 +1,25 @@
 /*
  * @Date: 2020-05-06 15:04:38
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-14 17:34:20
+ * @LastEditTime: 2020-06-14 18:19:42
  * @Description:
  */
 const puppeteer = require("puppeteer");
 const Config = require("../config/tsdoc-config");
 const EventBus = require("eventbusjs");
-const { account, password } = Config;
+const { username, password } = Config;
 
 /**
  * @name: 根据传入的接口文档url，构建对应的接口信息
  */
 const buildApiInfo = async (url) => {
 	const browser = await puppeteer.launch({
-		headless: true,
+		headless: false,
 		devtools: false,
 		timeout: 20000,
 	});
 	const page = await browser.newPage();
+	await page.goto(url, { waitUntil: "networkidle2" });
 	await login({ page });
 	await page.goto(url, { waitUntil: "networkidle2" });
 	await page.waitForNavigation();
@@ -82,9 +83,8 @@ const buildApiInfo = async (url) => {
 };
 
 const login = async ({ page }) => {
-	await page.goto("http://peck.weilaijishi.com/#/login", { waitUntil: "networkidle2" });
 	//登录
-	await page.type("input[formcontrolname=phone]", `${account}`);
+	await page.type("input[formcontrolname=phone]", `${username}`);
 	await page.type("input[formcontrolname=passWord]", `${password}`);
 
 	await Promise.all([page.click("button[type=button]"), page.waitForNavigation()]);

@@ -2,7 +2,7 @@
 /*
  * @Date: 2020-05-07 11:44:27
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-14 17:18:00
+ * @LastEditTime: 2020-06-14 18:12:57
  * @Description:
  */
 const commander = require("commander");
@@ -51,7 +51,7 @@ if (errors.length) {
 const curFolder = process.cwd();
 
 /**
- * @name: 通过事件监听响应机制，抓取url对应的peck文档上的接口信息，构建apiInfo、requestProps和responseProps信息
+ * @name: 通过事件监听响应机制，抓取url对应的api文档上的接口信息，构建apiInfo、requestProps和responseProps信息
  */
 const initFn = async (commander, url) => {
 	const idxfilePath = path.resolve(curFolder, "index.ts");
@@ -77,7 +77,7 @@ const initFn = async (commander, url) => {
 };
 
 /**
- * @name: 通过事件监听响应机制，抓取url对应的peck文档上的接口信息，构建apiInfo、requestProps和responseProps信息
+ * @name: 通过事件监听响应机制，抓取url对应的api文档上的接口信息，构建apiInfo、requestProps和responseProps信息
  */
 const addFn = async (commander, url) => {
 	const idxfilePath = path.resolve(curFolder, "index.ts");

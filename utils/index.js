@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-06-12 14:04:54
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-14 15:43:01
+ * @LastEditTime: 2020-06-14 18:25:29
  * @Description:
  */
 const prettier = require("prettier");
@@ -41,8 +41,9 @@ const normalResponseProps = (responseProps) => {
  */
 const getApiName = ({ url }) => {
 	const urlArray = url.split("/");
-	const tmpName = urlArray.length ? urlArray[urlArray.length - 1] : "";
-	return { apiName: upperFirstCase(tmpName), urlName: tmpName };
+	let lastUrl = urlArray.length ? urlArray[urlArray.length - 1] : "";
+	lastUrl = lastUrl.split("?")[0];
+	return { apiName: upperFirstCase(lastUrl), urlName: lastUrl };
 };
 
 /**
