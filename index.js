@@ -2,7 +2,7 @@
 /*
  * @Date: 2020-05-07 11:44:27
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-14 18:12:57
+ * @LastEditTime: 2020-06-14 23:27:19
  * @Description:
  */
 const commander = require("commander");
@@ -86,12 +86,12 @@ const addFn = async (commander, url) => {
 	if (!fileExists) {
 		return spinnerFactory.fail("不存在对应的文件");
 	}
-	spinnerFactory.showLoading({ text: "开始抓取文档数据", color: "yellow" });
+	spinnerFactory.showLoading({ text: "开始抓取文档数据" });
 	await buildApiInfo(url);
 	spinnerFactory.succeed("抓取文档结束");
 	// 事件机制，监听爬虫抓取结果
 	EventBus.addEventListener("apiInfo", async ({ type }, { apiInfo, requestProps, responseProps }) => {
-		spinnerFactory.showLoading({ text: "开始构建ts文档", color: "green" });
+		spinnerFactory.showLoading({ text: "开始构建ts文档" });
 		const requestInfo = await typeTemplate.addApi(typefilePath, { apiInfo, requestProps, responseProps });
 		await indexTemplate.addApi(idxfilePath, { apiInfo, requestInfo });
 		spinnerFactory.succeed("构建ts文档结束");
@@ -100,7 +100,11 @@ const addFn = async (commander, url) => {
 };
 
 const initConfig = async (commander, url) => {
-	fs.copyFile(configFilePath, path.join(__dirname, "config", "tsdoc-config.js"), (error) => error && spinnerFactory.fail(error.message));
+	fs.copyFile(
+		configFilePath,
+		path.join(__dirname, "config", "tsdoc-config.js"),
+		(error) => error && spinnerFactory.fail(error.message)
+	);
 };
 
 const cmdCallback = { init: initFn, add: addFn, config: initConfig };

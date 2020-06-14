@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-06-13 14:37:38
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-14 17:00:19
+ * @LastEditTime: 2020-06-14 23:27:55
  * @Description: 在命令行展示loading的spinner
  */
 const ora = require("ora");
@@ -18,9 +18,9 @@ class SpinnerFactory {
 		}
 		return SpinnerFactory._spinner;
 	}
-	static showLoading = ({ text, color = "white" }) => {
-		SpinnerFactory.getInstance().text = text;
-		SpinnerFactory.getInstance().color = color;
+	static showLoading = ({ text }) => {
+		SpinnerFactory.getInstance().color = "yellow";
+		SpinnerFactory.getInstance().text = chalk.yellow(text);
 	};
 	static succeed = (text = "") => {
 		SpinnerFactory.getInstance().succeed(chalk.green(text));

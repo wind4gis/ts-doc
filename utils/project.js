@@ -1,14 +1,15 @@
 /*
  * @Date: 2020-06-14 14:05:51
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-14 23:05:13
+ * @LastEditTime: 2020-06-14 23:18:36
  * @Description:
  */
 
 const { Project } = require("ts-morph");
 const fsPromises = require("fs").promises;
+const path = require("path");
 const { prettierCode } = require("../utils");
-const tsConfigFilePath = "../tsconfig.json";
+const tsConfigFilePath = path.join(__dirname, "../tsconfig.json");
 /**
  * @name: 返回project对象的工厂
  */
