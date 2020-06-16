@@ -2,7 +2,7 @@
 /*
  * @Date: 2020-05-07 11:44:27
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-14 23:27:19
+ * @LastEditTime: 2020-06-16 22:20:13
  * @Description:
  */
 const commander = require("commander");
@@ -23,6 +23,7 @@ commander.parse(process.argv);
 let errors = [];
 const [cmd, url] = commander.args;
 let configFilePath = "";
+const curFolder = process.cwd();
 
 if (!cmdList.includes(cmd)) {
 	errors.push("请输入该工具支持的方法");
@@ -37,9 +38,14 @@ if (cmd !== "config" && !fs.existsSync(path.join(__dirname, "config", "tsdoc-con
 }
 
 if (cmd === "config") {
-	configFilePath = url[0] === "." ? path.join(__dirname, url) : url;
+	// 支持config文件的相对路径和绝对路径识别
+	configFilePath = url[0] === "." ? path.join(curFolder, url) : url;
 	if (!fs.existsSync(configFilePath)) {
-		errors.push("请指定有效的配置文件");
+		if (fs.existsSync(path.join(curFolder, url))) {
+			configFilePath = path.join(curFolder, url)
+		} else {
+			errors.push("请指定有效的配置文件");
+		}
 	}
 }
 
@@ -47,8 +53,6 @@ if (errors.length) {
 	spinnerFactory.fail(errors.join(";\n"));
 	return spinnerFactory.stop();
 }
-
-const curFolder = process.cwd();
 
 /**
  * @name: 通过事件监听响应机制，抓取url对应的api文档上的接口信息，构建apiInfo、requestProps和responseProps信息
