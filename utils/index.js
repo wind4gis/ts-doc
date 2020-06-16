@@ -1,15 +1,16 @@
 /*
  * @Date: 2020-06-12 14:04:54
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-15 14:09:58
+ * @LastEditTime: 2020-06-16 23:27:13
  * @Description:
  */
 const prettier = require("prettier");
+const path = require("path")
 /**
  * @name: 格式化代码
  */
 const prettierCode = (result) => {
-	return prettier.resolveConfigFile().then((filePath) => {
+	return prettier.resolveConfigFile(path.join(__dirname, "..", "prettier.config.js")).then((filePath) => {
 		return prettier.resolveConfig(filePath).then((options) => {
 			return prettier.format(result, options);
 		});
