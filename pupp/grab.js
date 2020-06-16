@@ -1,13 +1,18 @@
 /*
  * @Date: 2020-05-06 15:04:38
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-14 19:50:55
+ * @LastEditTime: 2020-06-16 22:00:37
  * @Description:
  */
 const puppeteer = require("puppeteer");
-const Config = require("../config/tsdoc-config");
 const EventBus = require("eventbusjs");
-const { username, password } = Config;
+const path = require("path");
+const fs = require("fs");
+let Config = null;
+if (fs.existsSync(path.join(__dirname, "..", "config", "tsdoc-config.js"))) {
+	Config = require("../config/tsdoc-config");
+}
+const { username, password } = Config || {};
 
 /**
  * @name: 根据传入的接口文档url，构建对应的接口信息
@@ -56,7 +61,7 @@ const buildApiInfo = async (url) => {
 			}));
 		// 设置apiInfo的参数信息
 		// requestProps = method === "GET" ? getParams(parameter) : getParams(body);
-		requestProps = getParams(parameter.length ? parameter : body.length ? body : [])
+		requestProps = getParams(parameter.length ? parameter : body.length ? body : []);
 		// 返回apiinfo的response信息
 		const getResponse = (item) => {
 			if (Array.isArray(item)) return item.map((arrayItem) => getResponse(arrayItem));

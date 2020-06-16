@@ -1,9 +1,11 @@
 /*
  * @Date: 2020-05-07 15:35:11
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-16 21:04:21
+ * @LastEditTime: 2020-06-16 22:01:19
  * @Description:
  */
+const path = require("path");
+const fs = require("fs");
 const {
 	upperFirstCase,
 	getApiName,
@@ -11,9 +13,13 @@ const {
 	generateTypeFileReference,
 	normalResponseProps,
 } = require("../utils");
-const { username, responsefilePath } = require("../config/tsdoc-config");
 const ProjectFactory = require("../utils/project");
 const project = ProjectFactory.getInstance();
+let Config = null;
+if (fs.existsSync(path.join(__dirname, "..", "config", "tsdoc-config.js"))) {
+	Config = require("../config/tsdoc-config");
+}
+const { username, responsefilePath } = Config || {};
 
 /**
  * @name: 初始化或覆盖该文件，生成对应的接口文档信息
@@ -87,7 +93,7 @@ const generateDesc = (title) => {
 			total.push(idx === 0 ? `/* ${cur}` : `* ${cur}`);
 			return total;
 		}, []);
-		desc.push(" */")
+		desc.push(" */");
 	} else {
 		desc = [`//---------------------${title}----------------------`];
 	}

@@ -1,13 +1,19 @@
 /*
  * @Date: 2020-05-09 14:07:59
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-16 21:13:35
+ * @LastEditTime: 2020-06-16 22:01:09
  * @Description:
  */
 const { getApiName, generateHeaderComment, generateIdxFileReference } = require("../utils");
-const { username, fetchfilePath } = require("../config/tsdoc-config");
+const path = require("path");
+const fs = require("fs");
 const ProjectFactory = require("../utils/project");
 const project = ProjectFactory.getInstance();
+let Config = null;
+if (fs.existsSync(path.join(__dirname, "..", "config", "tsdoc-config.js"))) {
+	Config = require("../config/tsdoc-config");
+}
+const { username, fetchfilePath } = Config || {};
 
 /**
  * @name: 初始化或覆盖该文件，生成对应的接口文档信息
