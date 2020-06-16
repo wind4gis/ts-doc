@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-06-14 14:05:51
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-16 22:11:44
+ * @LastEditTime: 2020-06-16 23:06:19
  * @Description:
  */
 
@@ -25,13 +25,12 @@ class ProjectFactory {
 		}
 		return ProjectFactory._project;
 	}
-	static formatSave(filePath) {
+	static async formatSave(filePath) {
 		console.log(filePath);
 		const target = ProjectFactory.getInstance().getSourceFile(filePath);
 		if (target) {
-			const formatTxt = prettierCode(target.getText() || "");
-			fs.writeFileSync;
-			fs.writeFile(filePath, formatTxt, (error) => spinnerFactory.fail(error));
+			const formatTxt = await prettierCode(target.getText() || "");
+			fs.writeFile(filePath, formatTxt, (error) => error && spinnerFactory.fail(error));
 		}
 	}
 }
