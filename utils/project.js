@@ -1,20 +1,20 @@
 /*
  * @Date: 2020-06-14 14:05:51
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-14 23:18:36
+ * @LastEditTime: 2020-06-16 22:11:44
  * @Description:
  */
 
 const { Project } = require("ts-morph");
-const fsPromises = require("fs").promises;
+const fs = require("fs");
 const path = require("path");
 const { prettierCode } = require("../utils");
+const spinnerFactory = require("../utils/spinner");
 const tsConfigFilePath = path.join(__dirname, "../tsconfig.json");
 /**
  * @name: 返回project对象的工厂
  */
 class ProjectFactory {
-	static _project = null;
 	static getInstance() {
 		if (!ProjectFactory._project) {
 			ProjectFactory._project = new Project({
@@ -25,14 +25,16 @@ class ProjectFactory {
 		}
 		return ProjectFactory._project;
 	}
-	static async formatSave(filePath) {
-    console.log(filePath);
-    const target = ProjectFactory.getInstance().getSourceFile(filePath)
+	static formatSave(filePath) {
+		console.log(filePath);
+		const target = ProjectFactory.getInstance().getSourceFile(filePath);
 		if (target) {
-			const formatTxt = await prettierCode(target.getText() || "");
-			await fsPromises.writeFile(filePath, formatTxt);
+			const formatTxt = prettierCode(target.getText() || "");
+			fs.writeFileSync;
+			fs.writeFile(filePath, formatTxt, (error) => spinnerFactory.fail(error));
 		}
 	}
 }
+ProjectFactory._project = null;
 
 module.exports = ProjectFactory;

@@ -18,23 +18,23 @@ const { username, fetchfilePath } = Config || {};
 /**
  * @name: 初始化或覆盖该文件，生成对应的接口文档信息
  */
-const initApi = async (filePath, { apiInfo, requestInfo } = {}) => {
+const initApi = (filePath, { apiInfo, requestInfo } = {}) => {
 	const { request = [], response, desc } = requestInfo;
 	const sourceFile = project.createSourceFile(filePath, "", { overwrite: true });
 	generateHeader(sourceFile);
 	initInterfaceFromInfo(sourceFile, { apiInfo, request, response, desc });
 	// 格式化代码
-	await ProjectFactory.formatSave(filePath);
+	ProjectFactory.formatSave(filePath);
 };
 /**
  * @name: 在之前生成的index文件上追加api接口描述
  */
-const addApi = async (filePath, { apiInfo, requestInfo } = {}) => {
+const addApi = (filePath, { apiInfo, requestInfo } = {}) => {
 	const { request = [], response, desc } = requestInfo;
 	const sourceFile = project.addSourceFilesAtPaths(filePath)[0];
 	addInterfaceFromInfo(sourceFile, { apiInfo, request, response, desc });
 	// 格式化代码
-	await ProjectFactory.formatSave(filePath);
+	ProjectFactory.formatSave(filePath);
 };
 //---------------------生成代码----------------------
 /**

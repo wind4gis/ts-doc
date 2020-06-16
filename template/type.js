@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-05-07 15:35:11
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-16 22:01:19
+ * @LastEditTime: 2020-06-16 22:09:57
  * @Description:
  */
 const path = require("path");
@@ -24,7 +24,7 @@ const { username, responsefilePath } = Config || {};
 /**
  * @name: 初始化或覆盖该文件，生成对应的接口文档信息
  */
-const initApi = async (filePath, { apiInfo, requestProps, responseProps }) => {
+const initApi = (filePath, { apiInfo, requestProps, responseProps }) => {
 	const sourceFile = project.createSourceFile(filePath, "", { overwrite: true });
 	generateHeader(sourceFile);
 	buildInterfaceFromInfo(sourceFile, {
@@ -33,13 +33,13 @@ const initApi = async (filePath, { apiInfo, requestProps, responseProps }) => {
 		responseProps: normalResponseProps(responseProps),
 	});
 	// 格式化代码
-	await ProjectFactory.formatSave(filePath);
+	ProjectFactory.formatSave(filePath);
 	return getRequestInfo({ apiInfo });
 };
 /**
  * @name: 接收源文件和通过url读取的接口信息，在源文件的基础上新增对应的接口文档信息
  */
-const addApi = async (filePath, { apiInfo, requestProps, responseProps }) => {
+const addApi = (filePath, { apiInfo, requestProps, responseProps }) => {
 	const sourceFile = project.addSourceFilesAtPaths(filePath)[0];
 	buildInterfaceFromInfo(sourceFile, {
 		apiInfo,
@@ -47,7 +47,7 @@ const addApi = async (filePath, { apiInfo, requestProps, responseProps }) => {
 		responseProps: normalResponseProps(responseProps),
 	});
 	// 格式化代码
-	await ProjectFactory.formatSave(filePath);
+	ProjectFactory.formatSave(filePath);
 	return getRequestInfo({ apiInfo });
 };
 /**

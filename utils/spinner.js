@@ -1,14 +1,13 @@
 /*
  * @Date: 2020-06-13 14:37:38
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-14 23:27:55
+ * @LastEditTime: 2020-06-16 22:12:35
  * @Description: 在命令行展示loading的spinner
  */
 const ora = require("ora");
 const chalk = require("chalk");
 
 class SpinnerFactory {
-	static _spinner = null;
 	static getInstance() {
 		if (!SpinnerFactory._spinner) {
 			SpinnerFactory._spinner = ora({ text: "程序开始运行", color: "white" }).start();
@@ -18,22 +17,24 @@ class SpinnerFactory {
 		}
 		return SpinnerFactory._spinner;
 	}
-	static showLoading = ({ text }) => {
+	static showLoading({ text }) {
 		SpinnerFactory.getInstance().color = "yellow";
 		SpinnerFactory.getInstance().text = chalk.yellow(text);
-	};
-	static succeed = (text = "") => {
+	}
+	static succeed(text = "") {
 		SpinnerFactory.getInstance().succeed(chalk.green(text));
-	};
-	static fail = (text = "") => {
+	}
+	static fail(text = "") {
 		SpinnerFactory.getInstance().fail(chalk.red(text));
-	};
-	static stop = () => {
+	}
+	static stop() {
 		if (SpinnerFactory._spinner) {
 			SpinnerFactory._spinner.stop();
 		}
 		SpinnerFactory._spinner = null;
-	};
+	}
 }
+
+SpinnerFactory._spinner = null;
 
 module.exports = SpinnerFactory;
