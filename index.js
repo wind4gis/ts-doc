@@ -2,7 +2,7 @@
 /*
  * @Date: 2020-05-07 11:44:27
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-16 22:20:13
+ * @LastEditTime: 2020-06-16 22:34:29
  * @Description:
  */
 const commander = require("commander");
@@ -42,7 +42,7 @@ if (cmd === "config") {
 	configFilePath = url[0] === "." ? path.join(curFolder, url) : url;
 	if (!fs.existsSync(configFilePath)) {
 		if (fs.existsSync(path.join(curFolder, url))) {
-			configFilePath = path.join(curFolder, url)
+			configFilePath = path.join(curFolder, url);
 		} else {
 			errors.push("请指定有效的配置文件");
 		}
@@ -104,11 +104,17 @@ const addFn = async (commander, url) => {
 };
 
 const initConfig = async (commander, url) => {
+	spinnerFactory.showLoading({ text: "初始化配置文件" });
+	if (!fs.existsSync(path.join(__dirname, "config"))) {
+		fs.mkdirSync("config");
+	}
 	fs.copyFile(
 		configFilePath,
 		path.join(__dirname, "config", "tsdoc-config.js"),
 		(error) => error && spinnerFactory.fail(error.message)
 	);
+	spinnerFactory.succeed("构建配置文件结束");
+	spinnerFactory.stop();
 };
 
 const cmdCallback = { init: initFn, add: addFn, config: initConfig };
