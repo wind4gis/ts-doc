@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-05-07 15:35:11
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-14 16:43:39
+ * @LastEditTime: 2020-06-15 14:17:27
  * @Description:
  */
 const {
@@ -90,14 +90,26 @@ const buildInterfaceFromInfo = (sourceFile, { apiInfo, requestProps, responsePro
 			propsInfo: requestProps,
 			writer,
 		});
-		if (responseProps.length === 1 && !responseProps[0].children) {
-			writer.writeLine(
-				`export interface I${apiName}ResponseProps extends IResponseType {result?: ${responseProps[0].type};}`
-			);
+		// 如果返回的result是基本类型
+		if (responseProps.length === 1 && responseProps[0].name === "result") {
+			if (!responseProps[0].children) {
+				writer.writeLine(
+					`export interface I${apiName}ResponseProps extends IResponseType {result?: ${responseProps[0].type};}`
+				);
+			} else {
+				buildSingleInterfaceFromInfo(apiName, {
+					interfaceName: `I${apiName}Props`,
+					propsInfo: responseProps[0].children,
+					writer,
+				});
+				writer.writeLine(
+					`export interface I${apiName}ResponseProps extends IResponseType {result?: I${apiName}Props;}`
+				);
+			}
 		} else {
 			buildSingleInterfaceFromInfo(apiName, {
 				interfaceName: `I${apiName}Props`,
-				propsInfo: responseProps[0].children,
+				propsInfo: responseProps,
 				writer,
 			});
 			writer.writeLine(

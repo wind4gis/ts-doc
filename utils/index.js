@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-06-12 14:04:54
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-14 18:25:29
+ * @LastEditTime: 2020-06-15 14:09:58
  * @Description:
  */
 const prettier = require("prettier");
@@ -33,7 +33,7 @@ const normalResponseProps = (responseProps) => {
 			responseProps = responseProps.find((r) => r.name === "result");
 		}
 	}
-	return [responseProps];
+	return Array.isArray(responseProps) ? responseProps : [responseProps];
 };
 
 /**
