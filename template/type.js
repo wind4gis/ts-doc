@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-05-07 15:35:11
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-15 14:17:27
+ * @LastEditTime: 2020-06-16 21:04:21
  * @Description:
  */
 const {
@@ -78,13 +78,31 @@ const generateHeader = (sourceFile) => {
 	});
 };
 /**
+ * @name: 生成顶部描述
+ */
+const generateDesc = (title) => {
+	let desc = null;
+	if (String.prototype.includes.call(title, "\n")) {
+		desc = title.split("\n").reduce((total, cur, idx) => {
+			total.push(idx === 0 ? `/* ${cur}` : `* ${cur}`);
+			return total;
+		}, []);
+		desc.push(" */")
+	} else {
+		desc = [`//---------------------${title}----------------------`];
+	}
+	return desc;
+};
+/**
  * @name: 根据文档信息构建接口对象的描述
  */
 const buildInterfaceFromInfo = (sourceFile, { apiInfo, requestProps, responseProps } = {}) => {
 	const { apiName } = getApiName(apiInfo);
 	// 生成描述
 	sourceFile.addStatements((writer) => {
-		writer.writeLine(`\n//---------------------${apiInfo.title}----------------------`);
+		generateDesc(apiInfo.title).forEach((title) => {
+			writer.writeLine(title);
+		});
 		buildSingleInterfaceFromInfo(apiName, {
 			interfaceName: `I${apiName}RequestProps`,
 			propsInfo: requestProps,

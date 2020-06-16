@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-05-09 14:07:59
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-14 16:44:38
+ * @LastEditTime: 2020-06-16 21:13:35
  * @Description:
  */
 const { getApiName, generateHeaderComment, generateIdxFileReference } = require("../utils");
@@ -48,7 +48,31 @@ const generateHeader = (sourceFile) => {
 		});
 	});
 };
-
+/**
+ * @name: 生成顶部描述
+ */
+const generateDesc = (title) => {
+	let desc = null;
+	if (String.prototype.includes.call(title, "\n")) {
+		desc = title.split("\n").reduce((total, cur, idx) => {
+			total.push(idx === 0 ? `/* ${cur}` : `* ${cur}`);
+			return total;
+		}, []);
+		desc.push(" */");
+	} else {
+		desc = [`//---------------------${title}----------------------`];
+	}
+	return desc;
+};
+/**
+ * @name: 将desc进行处理，存在换行符
+ */
+const getDesc = (desc) => {
+	if (String.prototype.includes.call(desc, "\n")) {
+		return desc.split("\n")[0];
+	}
+	return desc;
+};
 /**
  * @name: 初始化或覆盖该文件，生成对应的接口文档信息
  */
@@ -68,11 +92,13 @@ const initInterfaceFromInfo = async (sourceFile, { apiInfo, request, response, d
 		// 生成请求的url地址
 		writer.writeLine(`\n//---------------------请求的url地址----------------------`);
 		writer.writeLine(`const urls = {`);
-		writer.writeLine(`${urlName}: "${url}", // ${desc}`);
+		writer.writeLine(`${urlName}: "${url}", // ${getDesc(desc)}`);
 		writer.writeLine(`}`);
 		//生成请求的方法
 		writer.writeLine(`\n//---------------------发起请求的方法----------------------`);
-		writer.writeLine(`// ${desc}`);
+		generateDesc(apiInfo.title).forEach((title) => {
+			writer.writeLine(title);
+		});
 		writer.writeLine(
 			`export const ${method}${apiName}: (${request.length ? request[0] : ""}) => Promise<${
 				response[0]
@@ -103,7 +129,9 @@ const addInterfaceFromInfo = (sourceFile, { apiInfo, request, response, desc } =
 	sourceFile.getVariableDeclaration("urls").setInitializer(JSON.stringify(urlsValObj));
 	// 添加请求的方法
 	sourceFile.addStatements((writer) => {
-		writer.writeLine(`\n// ${desc}`);
+		generateDesc(apiInfo.title).forEach((title) => {
+			writer.writeLine(title);
+		});
 		writer.writeLine(
 			`export const ${method}${apiName}: (${request.length ? request[0] : ""}) => Promise<${
 				response[0]
