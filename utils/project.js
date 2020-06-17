@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-06-14 14:05:51
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-16 23:06:19
+ * @LastEditTime: 2020-06-17 20:17:43
  * @Description:
  */
 
@@ -26,10 +26,9 @@ class ProjectFactory {
 		return ProjectFactory._project;
 	}
 	static async formatSave(filePath) {
-		console.log(filePath);
 		const target = ProjectFactory.getInstance().getSourceFile(filePath);
 		if (target) {
-			const formatTxt = await prettierCode(target.getText() || "");
+			const formatTxt = await prettierCode(target.getFullText() || "");
 			fs.writeFile(filePath, formatTxt, (error) => error && spinnerFactory.fail(error));
 		}
 	}

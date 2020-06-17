@@ -2,7 +2,7 @@
 /*
  * @Date: 2020-05-07 11:44:27
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-16 23:17:28
+ * @LastEditTime: 2020-06-17 00:06:41
  * @Description:
  */
 const commander = require("commander");
@@ -105,7 +105,6 @@ const addFn = async (commander, url) => {
 
 const initConfig = async (commander, url) => {
 	spinnerFactory.showLoading({ text: "初始化配置文件" });
-	console.log(__dirname, curFolder);
 	if (!fs.existsSync(path.join(__dirname, "config"))) {
 		fs.mkdirSync(path.join(__dirname, "config"));
 	}

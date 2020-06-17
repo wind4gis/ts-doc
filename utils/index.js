@@ -1,11 +1,11 @@
 /*
  * @Date: 2020-06-12 14:04:54
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-16 23:27:13
+ * @LastEditTime: 2020-06-17 20:21:11
  * @Description:
  */
 const prettier = require("prettier");
-const path = require("path")
+const path = require("path");
 /**
  * @name: 格式化代码
  */
@@ -59,7 +59,7 @@ const upperFirstCase = (name) => {
 /**
  * @name: 生成文件抬头的描述
  */
-const generateHeaderComment = ({ username }) => {
+const generateHeaderComment = ({ author }) => {
 	const date = new Date();
 	const createDate = date.toLocaleDateString("zh").replace(/\//g, "-");
 	const createTime = date.toLocaleTimeString("zh", { hour12: false });
@@ -67,7 +67,7 @@ const generateHeaderComment = ({ username }) => {
 	return [
 		`/* `,
 		` * @Date: ${createDate} ${createTime}`,
-		` * @LastEditors: ${username}`,
+		` * @LastEditors: ${author}`,
 		` * @LastEditTime: ${createDate} ${createTime}`,
 		` * @Description:`,
 		` */`,
@@ -77,15 +77,15 @@ const generateHeaderComment = ({ username }) => {
 /**
  * @name: 生成type文件的依赖
  */
-const generateTypeFileReference = ({ responsefilePath }) => {
-	return [`import { IResponseType } from "${responsefilePath}"`];
+const generateTypeFileReference = ({ responseFnName, responsefilePath }) => {
+	return [`import ${responseFnName} from "${responsefilePath}"`];
 };
 
 /**
  * @name: 生成index文件的依赖
  */
-const generateIdxFileReference = ({ fetchfilePath }) => {
-	return [`import { get, post, postJson } from "${fetchfilePath}"`];
+const generateIdxFileReference = ({ fetchFnName, fetchfilePath }) => {
+	return [`import ${fetchFnName} from "${fetchfilePath}"`];
 };
 
 module.exports = {

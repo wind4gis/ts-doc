@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-05-09 14:07:59
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-16 22:01:09
+ * @LastEditTime: 2020-06-17 20:21:01
  * @Description:
  */
 const { getApiName, generateHeaderComment, generateIdxFileReference } = require("../utils");
@@ -13,7 +13,7 @@ let Config = null;
 if (fs.existsSync(path.join(__dirname, "..", "config", "tsdoc-config.js"))) {
 	Config = require("../config/tsdoc-config");
 }
-const { username, fetchfilePath } = Config || {};
+const { author, fetchFnName, fetchfilePath } = Config || {};
 
 /**
  * @name: 初始化或覆盖该文件，生成对应的接口文档信息
@@ -41,8 +41,8 @@ const addApi = (filePath, { apiInfo, requestInfo } = {}) => {
  * @name: 生成idx文件袋顶部描述
  */
 const generateHeader = (sourceFile) => {
-	const headerComment = generateHeaderComment({ username }); // 生成顶部描述
-	const fileReference = generateIdxFileReference({ fetchfilePath }); // 生成文件依赖
+	const headerComment = generateHeaderComment({ author }); // 生成顶部描述
+	const fileReference = generateIdxFileReference({ fetchFnName, fetchfilePath }); // 生成文件依赖
 	sourceFile.addStatements((writer) => {
 		headerComment.forEach((comment) => {
 			// 生成顶部描述

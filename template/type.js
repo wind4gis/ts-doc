@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-05-07 15:35:11
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-16 22:09:57
+ * @LastEditTime: 2020-06-17 20:21:27
  * @Description:
  */
 const path = require("path");
@@ -19,7 +19,7 @@ let Config = null;
 if (fs.existsSync(path.join(__dirname, "..", "config", "tsdoc-config.js"))) {
 	Config = require("../config/tsdoc-config");
 }
-const { username, responsefilePath } = Config || {};
+const { author, responseFnName, responsefilePath } = Config || {};
 
 /**
  * @name: 初始化或覆盖该文件，生成对应的接口文档信息
@@ -70,8 +70,8 @@ const getRequestInfo = ({ apiInfo }) => {
  * @name: 生成type文件的顶部描述
  */
 const generateHeader = (sourceFile) => {
-	const headerComment = generateHeaderComment({ username }); // 生成顶部描述
-	const fileReference = generateTypeFileReference({ responsefilePath }); // 生成文件依赖
+	const headerComment = generateHeaderComment({ author }); // 生成顶部描述
+	const fileReference = generateTypeFileReference({ responseFnName, responsefilePath }); // 生成文件依赖
 	sourceFile.addStatements((writer) => {
 		headerComment.forEach((comment) => {
 			// 生成顶部描述
