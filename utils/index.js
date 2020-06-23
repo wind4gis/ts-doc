@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-06-12 14:04:54
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-17 20:21:11
+ * @LastEditTime: 2020-06-23 16:38:53
  * @Description:
  */
 const prettier = require("prettier");
@@ -73,7 +73,26 @@ const generateHeaderComment = ({ author }) => {
 		` */`,
 	];
 };
-
+/**
+ * @name: 生成顶部描述
+ */
+const generateDesc = (title) => {
+	let desc = null;
+	if (String.prototype.includes.call(title, "\n")) {
+		const splitArr = title.split("\n").filter(Boolean)
+		if (splitArr.length === 1) {
+			return [`//---------------------${splitArr[0]}----------------------`];
+		}
+		desc = splitArr.reduce((total, cur, idx) => {
+			total.push(idx === 0 ? `/* ${cur}` : `* ${cur}`);
+			return total;
+		}, []);
+		desc.push(" */");
+		return desc
+	} else {
+		return [`//---------------------${title}----------------------`];
+	}
+};
 /**
  * @name: 生成type文件的依赖
  */
@@ -96,4 +115,5 @@ module.exports = {
 	generateHeaderComment,
 	generateTypeFileReference,
 	generateIdxFileReference,
+	generateDesc,
 };

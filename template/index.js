@@ -1,10 +1,10 @@
 /*
  * @Date: 2020-05-09 14:07:59
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-17 20:21:01
+ * @LastEditTime: 2020-06-23 17:04:44
  * @Description:
  */
-const { getApiName, generateHeaderComment, generateIdxFileReference } = require("../utils");
+const { getApiName, generateHeaderComment, generateIdxFileReference, generateDesc } = require("../utils");
 const path = require("path");
 const fs = require("fs");
 const ProjectFactory = require("../utils/project");
@@ -55,22 +55,6 @@ const generateHeader = (sourceFile) => {
 	});
 };
 /**
- * @name: 生成顶部描述
- */
-const generateDesc = (title) => {
-	let desc = null;
-	if (String.prototype.includes.call(title, "\n")) {
-		desc = title.split("\n").reduce((total, cur, idx) => {
-			total.push(idx === 0 ? `/* ${cur}` : `* ${cur}`);
-			return total;
-		}, []);
-		desc.push(" */");
-	} else {
-		desc = [`//---------------------${title}----------------------`];
-	}
-	return desc;
-};
-/**
  * @name: 将desc进行处理，存在换行符
  */
 const getDesc = (desc) => {
@@ -105,10 +89,11 @@ const initInterfaceFromInfo = async (sourceFile, { apiInfo, request, response, d
 		generateDesc(apiInfo.title).forEach((title) => {
 			writer.writeLine(title);
 		});
+		const params = request.length ? "params" : "";
 		writer.writeLine(
 			`export const ${method}${apiName}: (${request.length ? request[0] : ""}) => Promise<${
 				response[0]
-			}> = (params) => ${method}(urls.${urlName}, params)`
+			}> = (${params}) => ${method}(urls.${urlName}, ${params})`
 		);
 	});
 };
@@ -138,10 +123,11 @@ const addInterfaceFromInfo = (sourceFile, { apiInfo, request, response, desc } =
 		generateDesc(apiInfo.title).forEach((title) => {
 			writer.writeLine(title);
 		});
+		const params = request.length ? "params" : "";
 		writer.writeLine(
 			`export const ${method}${apiName}: (${request.length ? request[0] : ""}) => Promise<${
 				response[0]
-			}> = (params) => ${method}(urls.${urlName}, params)`
+			}> = (${params}) => ${method}(urls.${urlName}, ${params})`
 		);
 	});
 };

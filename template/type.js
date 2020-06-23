@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-05-07 15:35:11
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-17 20:21:27
+ * @LastEditTime: 2020-06-23 16:58:25
  * @Description:
  */
 const path = require("path");
@@ -12,6 +12,7 @@ const {
 	generateHeaderComment,
 	generateTypeFileReference,
 	normalResponseProps,
+	generateDesc,
 } = require("../utils");
 const ProjectFactory = require("../utils/project");
 const project = ProjectFactory.getInstance();
@@ -34,7 +35,7 @@ const initApi = (filePath, { apiInfo, requestProps, responseProps }) => {
 	});
 	// 格式化代码
 	ProjectFactory.formatSave(filePath);
-	return getRequestInfo({ apiInfo });
+	return getRequestInfo({ apiInfo, requestProps });
 };
 /**
  * @name: 接收源文件和通过url读取的接口信息，在源文件的基础上新增对应的接口文档信息
@@ -48,12 +49,12 @@ const addApi = (filePath, { apiInfo, requestProps, responseProps }) => {
 	});
 	// 格式化代码
 	ProjectFactory.formatSave(filePath);
-	return getRequestInfo({ apiInfo });
+	return getRequestInfo({ apiInfo, requestProps });
 };
 /**
  * @name: 设置getRequestInfo，用于构建index文件
  */
-const getRequestInfo = ({ apiInfo }) => {
+const getRequestInfo = ({ apiInfo, requestProps }) => {
 	const { apiName } = getApiName(apiInfo);
 	const requestInfo = {
 		desc: "",
@@ -61,7 +62,7 @@ const getRequestInfo = ({ apiInfo }) => {
 		response: [],
 	};
 	requestInfo["desc"] = apiInfo.title;
-	requestInfo["request"].push(`I${apiName}RequestProps`);
+	requestProps.length && requestInfo["request"].push(`I${apiName}RequestProps`);
 	requestInfo["response"].push(`I${apiName}ResponseProps`);
 	return requestInfo;
 };
@@ -82,22 +83,6 @@ const generateHeader = (sourceFile) => {
 			writer.writeLine(comment);
 		});
 	});
-};
-/**
- * @name: 生成顶部描述
- */
-const generateDesc = (title) => {
-	let desc = null;
-	if (String.prototype.includes.call(title, "\n")) {
-		desc = title.split("\n").reduce((total, cur, idx) => {
-			total.push(idx === 0 ? `/* ${cur}` : `* ${cur}`);
-			return total;
-		}, []);
-		desc.push(" */");
-	} else {
-		desc = [`//---------------------${title}----------------------`];
-	}
-	return desc;
 };
 /**
  * @name: 根据文档信息构建接口对象的描述
@@ -149,6 +134,9 @@ const buildSingleInterfaceFromInfo = (apiName, singleInterfaceInfo) => {
 	let queue = [singleInterfaceInfo];
 	while (queue.length) {
 		let { interfaceName, propsInfo, writer } = queue.shift();
+		if (!propsInfo.length) {
+			continue;
+		}
 		writer.write(`export interface ${interfaceName}`).block(() => {
 			propsInfo.forEach((prop) => {
 				if (prop.children) {

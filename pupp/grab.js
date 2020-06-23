@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-05-06 15:04:38
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-16 22:00:37
+ * @LastEditTime: 2020-06-18 14:39:36
  * @Description:
  */
 const puppeteer = require("puppeteer");
@@ -33,6 +33,7 @@ const buildApiInfo = async (url) => {
 		if (res && res.url().indexOf("find.query") >= 0) {
 			const txt = await res.text();
 			const { apiInfo, requestProps, responseProps } = await initApi(JSON.parse(txt));
+			apiInfo.url = apiInfo.url[0] === "/" ? apiInfo.url.slice(1) : apiInfo.url;
 			EventBus.dispatch("apiInfo", null, { apiInfo, requestProps, responseProps });
 		}
 	});
