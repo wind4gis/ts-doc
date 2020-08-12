@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-05-06 15:04:38
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-18 14:39:36
+ * @LastEditTime: 2020-08-12 14:59:00
  * @Description:
  */
 const puppeteer = require("puppeteer");
@@ -90,10 +90,10 @@ const buildApiInfo = async (url) => {
 
 const login = async ({ page }) => {
 	//登录
-	await page.type("input[formcontrolname=phone]", `${username}`);
-	await page.type("input[formcontrolname=passWord]", `${password}`);
+	await page.type("input[id=phone]", `${username}`);
+	await page.type("input[id=password]", `${password}`);
 
-	await Promise.all([page.click("button[type=button]"), page.waitForNavigation()]);
+	await Promise.all([page.click("input[id=submit]"), page.waitForNavigation()]);
 };
 
 module.exports = buildApiInfo;
