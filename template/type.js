@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-05-07 15:35:11
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-06-23 16:58:25
+ * @LastEditTime: 2020-08-14 10:46:41
  * @Description:
  */
 const path = require("path");
@@ -144,7 +144,7 @@ const buildSingleInterfaceFromInfo = (apiName, singleInterfaceInfo) => {
 					buildSingleProp({
 						writer,
 						prop: { ...prop, type: parentInterfaceName },
-						isArray: prop.type === "array",
+						isArray: ["array", "Array"].includes(prop.type),
 					});
 					queue.push({
 						interfaceName: parentInterfaceName,
@@ -165,9 +165,9 @@ const buildSingleInterfaceFromInfo = (apiName, singleInterfaceInfo) => {
  */
 const buildSingleProp = ({ writer, prop, isArray = false }) => {
 	writer.writeLine(
-		`${prop.name}${prop.required ? "" : "?"} : ${isArray ? "Array<" + prop.type + ">" : prop.type} // ${
-			prop.desc
-		}`
+		`${prop.name}${prop.required ? "" : "?"} : ${
+			isArray ? "Array<" + prop.type + ">" : prop.type
+		} // ${prop.desc.replace(/\n/g, "")}`
 	);
 };
 
