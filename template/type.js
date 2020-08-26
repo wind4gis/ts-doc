@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-05-07 15:35:11
  * @LastEditors: Huang canfeng
- * @LastEditTime: 2020-08-14 10:46:41
+ * @LastEditTime: 2020-08-14 21:20:55
  * @Description:
  */
 const path = require("path");
@@ -164,10 +164,9 @@ const buildSingleInterfaceFromInfo = (apiName, singleInterfaceInfo) => {
  * @name: 生成单条属性描述
  */
 const buildSingleProp = ({ writer, prop, isArray = false }) => {
+	const { name = "", required = false, type = "", desc = "" } = prop;
 	writer.writeLine(
-		`${prop.name}${prop.required ? "" : "?"} : ${
-			isArray ? "Array<" + prop.type + ">" : prop.type
-		} // ${prop.desc.replace(/\n/g, "")}`
+		`${name}${required ? "" : "?"} : ${isArray ? "Array<" + type + ">" : type} // ${(desc || "").replace(/\n/g, "")}`
 	);
 };
 
